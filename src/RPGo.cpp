@@ -1,4 +1,4 @@
-#include "RPTutorial10.h"
+#include "RPGo.h"
 
 
 
@@ -6,12 +6,12 @@
 namespace KCL_rosplan {
 
     /* constructor */
-    RPTutorialInterface::RPTutorialInterface(ros::NodeHandle &nh) {
+    RPGo::RPGo(ros::NodeHandle &nh) {
         // perform setup
     }
 
     /* action dispatch callback */
-    bool RPTutorialInterface::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
+    bool RPGo::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
 
         // The action implementation goes here.
 
@@ -20,9 +20,9 @@ namespace KCL_rosplan {
 //            boost::this_thread::sleep(boost::posix_time::seconds(1));
 //        }
 
-        Client client("undock", true); // true -> don't need ros::spin()
+        Client client("go", true); // true -> don't need ros::spin()
         client.waitForServer();
-        rosplan_interface_tiago::UndockGoal goal;
+        rosplan_interface_tiago::GoGoal goal;
 
         // Fill in goal here
         goal.blind_goal = 500;
@@ -30,11 +30,11 @@ namespace KCL_rosplan {
         client.sendGoal(goal);
         client.waitForResult(ros::Duration(5.0));
         if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            ROS_INFO("Yay! The dishes are now clean");
+            ROS_INFO("Yay! Approached the place\n");
         ROS_INFO("Current State: %s\n", client.getState().toString().c_str());
 
         // complete the action
-        ROS_INFO("KCL: (%s) TUTORIAL Action completing.", msg->name.c_str());
+        ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
         return true;
 
 
@@ -47,15 +47,13 @@ namespace KCL_rosplan {
 
 int main(int argc, char **argv) {
 
-    ros::init(argc, argv, "rosplan_tutorial_action", ros::init_options::AnonymousName);
+    ros::init(argc, argv, "rosplan_go_action_client", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 
-    // create action client
-//    Client client("undock", true);
-//    client.waitForServer();
+    // create action client here?
 
     // create PDDL action subscriber
-    KCL_rosplan::RPTutorialInterface rpti(nh);
+    KCL_rosplan::RPGo rpti(nh);
 
     rpti.runActionInterface();
 

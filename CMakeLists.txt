@@ -74,7 +74,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 # )
 
 ## Generate actions in the 'action' folder
-add_action_files(FILES Undock.action)
+add_action_files(FILES Go.action Check.action)
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(DEPENDENCIES actionlib_msgs)
@@ -126,8 +126,6 @@ include_directories(
   include
 )
 
-include_directories(${CATKIN_DEVEL_PREFIX}/include)
-
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/rosplan_interface_tiago.cpp
@@ -141,8 +139,11 @@ include_directories(${CATKIN_DEVEL_PREFIX}/include)
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(RPTutorial10 src/RPTutorial10.cpp)
-add_dependencies(RPTutorial10 ${catkin_EXPORTED_TARGETS})
+add_executable(RPGo src/RPGo.cpp)
+add_dependencies(RPGo ${catkin_EXPORTED_TARGETS})
+
+add_executable(RPCheck src/RPCheck.cpp)
+add_dependencies(RPCheck ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -155,7 +156,8 @@ add_dependencies(RPTutorial10 ${catkin_EXPORTED_TARGETS})
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(RPTutorial10 ${catkin_LIBRARIES})
+target_link_libraries(RPGo ${catkin_LIBRARIES})
+target_link_libraries(RPCheck ${catkin_LIBRARIES})
 
 #############
 ## Install ##

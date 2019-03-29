@@ -3,22 +3,24 @@
 import rospy
 import actionlib
 
-from rosplan_interface_tiago.msg import UndockAction
+from rosplan_interface_tiago.msg import GoAction
 
-class UndockServer:
+class GoServer:
     def __init__(self):
-        self.server = actionlib.SimpleActionServer('undock', UndockAction, self.execute, False)
+        self.server = actionlib.SimpleActionServer('go', GoAction, self.execute, False)
         self.server.start()
         print "server started?"
 
     def execute(self, goal):
         # Do lots of awesome groundbreaking robot stuff here
-        rospy.sleep(4)
+        for i in range(5):
+            print "go {}".format(i)
+            rospy.sleep(1)
+
         self.server.set_succeeded()
 
 
 if __name__ == '__main__':
-    rospy.init_node('undock_server')
-    server = UndockServer()
-    print "server created"
+    rospy.init_node('go_server')
+    server = GoServer()
     rospy.spin()

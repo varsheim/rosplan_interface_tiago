@@ -1,4 +1,4 @@
-(define (problem DLOG-1-1-1-2-03092014122955)
+(define (problem task)
   (:domain hazarddetection)
   (:objects door lamp - hazard elektron - robot initial lamp-location door-location - hazard-location )
   (:init (at elektron initial)

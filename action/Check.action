@@ -1,5 +1,5 @@
 # Goal
-uint32 blind_goal  # Specify which dishwasher we want to use
+uint32 blind_goal
 ---
 # Result
 uint32 is_undocked

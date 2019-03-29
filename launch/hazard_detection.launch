@@ -1,30 +1,34 @@
 <?xml version="1.0"?>
 <launch>
 
-	<!-- arguments -->
-	<arg name="domain_path"	default="$(find rosplan_interface_tiago)/pddl/hazard_detection/domain/domain.pddl" />
-	<arg name="problem_path"	default="$(find rosplan_interface_tiago)/pddl/hazard_detection/problem/problem.pddl" />
+    <!-- ROSPlan -->
+    <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+        <arg name="domain_path"		value="$(find rosplan_interface_tiago)/pddl/hazard_detection/domain/domain.pddl" />
+        <arg name="problem_path"	value="$(find rosplan_interface_tiago)/pddl/hazard_detection/problem/problem.pddl" />
+        <arg name="generated_problem_path"	value="$(find rosplan_interface_tiago)/pddl/hazard_detection/generated/generated.pddl" />
+    </include>
 
-	<!-- knowledge base -->
-	<node name="rosplan_knowledge_base" pkg="rosplan_knowledge_base" type="knowledgeBase" respawn="false" output="screen">
-		<param name="domain_path" value="$(arg domain_path)" />
-		<param name="problem_path" value="$(arg problem_path)" />
-		<param name="database_path" value="$(find rosplan_knowledge_base)/common/mongoDB/" />
-		<!-- conditional planning flags -->
-		<param name="use_unknowns" value="false" />
-	</node>
 
-	<!-- problem generation -->
-	<include file="$(find rosplan_planning_system)/launch/includes/problem_interface.launch">
-		<arg name="knowledge_base"   value="rosplan_knowledge_base" />
-		<arg name="domain_path"      value="$(arg domain_path)" />
-		<arg name="problem_path"     value="$(find rosplan_interface_tiago)/pddl/hazard_detection/generated/generated.pddl" />
-		<arg name="problem_topic"    value="problem_instance" />
-	</include>
-	
-	<!-- scene database (MongoDB) -->
-	<include file="$(find mongodb_store)/launch/mongodb_store.launch">
-		<arg name="db_path" value="$(find rosplan_knowledge_base)/common/mongoDB/"/>
-	</include>
+    <!-- actionlib servers -->
+    <node name="rosplan_interface_go_server" pkg="rosplan_interface_tiago" type="go_server.py" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_check_server" pkg="rosplan_interface_tiago" type="check_server.py" respawn="false" output="screen">
+    </node>
+
+    <!-- action clients -->
+    <node name="rosplan_interface_go_client" pkg="rosplan_interface_tiago" type="RPGo" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="go" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_check_client" pkg="rosplan_interface_tiago" type="RPCheck" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="check" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
 
 </launch>

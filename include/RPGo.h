@@ -4,20 +4,20 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_interface_tiago/UndockAction.h>
+#include <rosplan_interface_tiago/GoAction.h>
 
-#ifndef KCL_tutorial_10
-#define KCL_tutorial_10
+#ifndef ROSPLAN_INTERFACE_TIAGO_RPGO_H
+#define ROSPLAN_INTERFACE_TIAGO_RPGO_H
 
 /**
  * This file defines an action interface created in tutorial 10.
  */
 
-typedef actionlib::SimpleActionClient<rosplan_interface_tiago::UndockAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_interface_tiago::GoAction> Client;
 
 namespace KCL_rosplan {
 
-    class RPTutorialInterface: public RPActionInterface
+    class RPGo: public RPActionInterface
     {
 
     private:
@@ -25,7 +25,7 @@ namespace KCL_rosplan {
     public:
 
         /* constructor */
-        RPTutorialInterface(ros::NodeHandle &nh);
+        RPGo(ros::NodeHandle &nh);
 
         /* listen to and process action_dispatch topic */
         bool concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg);
