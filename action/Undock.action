@@ -1,0 +1,8 @@
+# Goal
+uint32 blind_goal  # Specify which dishwasher we want to use
+---
+# Result
+uint32 is_undocked
+---
+# Message
+float32 percent_complete

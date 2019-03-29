@@ -8,17 +8,23 @@ project(rosplan_interface_tiago)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  actionlib
   diagnostic_msgs
   geometry_msgs
   roscpp
   rosplan_dispatch_msgs
   rosplan_knowledge_msgs
+  rosplan_planning_system
   rospy
   std_msgs
   std_srvs
   tf
+  genmsg
+  actionlib
+  actionlib_msgs
 )
+
+
+find_package(Boost REQUIRED COMPONENTS thread)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -68,17 +74,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(FILES Undock.action)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   diagnostic_msgs#   geometry_msgs#   rosplan_dispatch_msgs#   rosplan_knowledge_msgs#   std_msgs
-# )
+generate_messages(DEPENDENCIES actionlib_msgs)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,10 +109,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES rosplan_interface_tiago
-#  CATKIN_DEPENDS actionlib diagnostic_msgs geometry_msgs roscpp rosplan_dispatch_msgs rosplan_knowledge_msgs rospy std_msgs std_srvs tf
-#  DEPENDS system_lib
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS roscpp rospy std_msgs std_srvs diagnostic_msgs geometry_msgs rosplan_dispatch_msgs rosplan_knowledge_msgs rosplan_planning_system genmsg actionlib actionlib_msgs tf
+  DEPENDS
 )
 
 ###########
@@ -123,9 +121,12 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  include
 )
+
+include_directories(${CATKIN_DEVEL_PREFIX}/include)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -140,7 +141,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/rosplan_interface_tiago_node.cpp)
+add_executable(RPTutorial10 src/RPTutorial10.cpp)
+add_dependencies(RPTutorial10 ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,9 +155,7 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(RPTutorial10 ${catkin_LIBRARIES})
 
 #############
 ## Install ##
