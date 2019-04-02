@@ -6,7 +6,9 @@
     initial lamp-location door-location - hazard-location
 )
 (:init
-    (at elektron initial)
+    (obj_at elektron initial)
+    (obj_at lamp lamp-location)
+    (obj_at door door-location)
 
 
     (linked lamp lamp-location)
@@ -16,6 +18,6 @@
 (:goal (and
     (checked lamp)
     (checked door)
-    (at elektron initial)
+    (obj_at elektron initial)
 ))
 )
