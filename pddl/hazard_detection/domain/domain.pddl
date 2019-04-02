@@ -1,6 +1,6 @@
 (define (domain hazarddetection)
 
-(:requirements :strips :typing :disjunctive-preconditions :negative-preconditions)
+(:requirements :strips :typing :disjunctive-preconditions)
 
 (:types
     hazard
@@ -16,18 +16,17 @@
 (:action GO
       :parameters (?obj - robot ?start - location ?destination - location)
       :precondition (and
-            (obj_at ?obj ?start)
-            (not (obj_at ?obj ?destination)))
+            (obj_at ?obj ?start))
       :effect (and
             (obj_at ?obj ?destination)
             (not (obj_at ?obj ?start)))
 )
+
 (:action CHECK
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location)
       :precondition (and
             (obj_at ?obj ?hazloc)
-            (linked ?hazard ?hazloc)
-      		(not (checked ?hazard)))
+            (linked ?hazard ?hazloc))
       :effect (and
             (checked ?hazard))
 )
