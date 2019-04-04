@@ -29,8 +29,11 @@ namespace KCL_rosplan {
 
         client.sendGoal(goal);
         client.waitForResult(ros::Duration(5.0));
-        if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
             ROS_INFO("Yay! Approached the place\n");
+            ros::Duration(5).sleep();
+        }
+
         ROS_INFO("Current State: %s\n", client.getState().toString().c_str());
 
         // complete the action

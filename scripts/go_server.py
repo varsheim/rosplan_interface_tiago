@@ -13,9 +13,10 @@ class GoServer:
 
     def execute(self, goal):
         # Do lots of awesome groundbreaking robot stuff here
-        for i in range(5):
-            print "go {}".format(i)
-            rospy.sleep(1)
+        # for i in range(5):
+        #     print "go {}".format(i)
+        #     rospy.sleep(1)
+        print "GO server execute\n\n"
 
         self.server.set_succeeded()
 
