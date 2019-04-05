@@ -9,14 +9,13 @@ class CheckServer:
     def __init__(self):
         self.server = actionlib.SimpleActionServer('check', CheckAction, self.execute, False)
         self.server.start()
-        print "CHECK server started?"
+        print "SERVER: CHECK: started\n"
 
     def execute(self, goal):
         # Do lots of awesome groundbreaking robot stuff here
-        # for i in range(5):
-        #     print "check {}".format(i)
-        #     rospy.sleep(1)
-        print "CHECK server execute\n\n"
+        print "SERVER: CHECK: execute - i will sleep now\n"
+        rospy.sleep(2)
+        print "SERVER: CHECK: i have finished sleeping - sending 'succeeded'\n"
 
         self.server.set_succeeded()
 

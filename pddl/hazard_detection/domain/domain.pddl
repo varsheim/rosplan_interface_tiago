@@ -1,11 +1,12 @@
 (define (domain hazarddetection)
 
-(:requirements :strips :typing :disjunctive-preconditions :durative-actions)
+(:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
 
 (:types
     hazard
     robot - locatable
-    hazard-location - location)
+    hazard-location - location
+)
 
 (:predicates
     (obj_at ?obj - locatable ?loc - location )
@@ -19,17 +20,18 @@
       :condition (and
             (at start (obj_at ?obj ?start)))
       :effect (and
-            (at end ((obj_at ?obj ?destination))
-            (at start ((not (obj_at ?obj ?start))))
+            (at end (obj_at ?obj ?destination))
+            (at start (not (obj_at ?obj ?start))))
 )
 
 (:durative-action CHECK
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location)
-      :duration ( = ?duration 10)
+      :duration ( = ?duration 5)
       :condition (and
-            (at start ((obj_at ?obj ?hazloc))
-            (at start ((linked ?hazard ?hazloc)))
+            (over all (obj_at ?obj ?hazloc))
+            (over all (linked ?hazard ?hazloc)))
       :effect (and
-            (at end ((checked ?hazard)))
+            (at end (checked ?hazard)))
 )
+
 )

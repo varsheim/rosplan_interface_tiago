@@ -25,20 +25,24 @@ namespace KCL_rosplan {
 //        }
 
         Client client("check", true); // true -> don't need ros::spin()
+        ROS_INFO("CLIENT: CHECK: Waiting for sever");
         client.waitForServer();
         rosplan_interface_tiago::CheckGoal goal;
 
         // Fill in goal here
         goal.blind_goal = 500;
 
+        ROS_INFO("CLIENT: CHECK: I will send goal now");
         client.sendGoal(goal);
-        client.waitForResult(ros::Duration(5.0));
+
+        ROS_INFO("CLIENT: CHECK: I will wait for result now");
+        client.waitForResult(ros::Duration(10.0));
+
+        ROS_INFO("CLIENT: CHECK: I received result and it is:");
         if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-            ROS_INFO(""
-                     "Yay! Approached the place\n");
-            ros::Duration(5).sleep();
+
         }
-        ROS_INFO("Current State: %s\n", client.getState().toString().c_str());
+        ROS_INFO("CLIENT: CHECK: Current State: %s\n", client.getState().toString().c_str());
 
         // complete the action
         ROS_INFO("KCL: (%s) CHECK Action completing.\n", msg->name.c_str());

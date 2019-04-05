@@ -9,14 +9,13 @@ class GoServer:
     def __init__(self):
         self.server = actionlib.SimpleActionServer('go', GoAction, self.execute, False)
         self.server.start()
-        print "server started?"
+        print "SERVER: GO: started"
 
     def execute(self, goal):
         # Do lots of awesome groundbreaking robot stuff here
-        # for i in range(5):
-        #     print "go {}".format(i)
-        #     rospy.sleep(1)
-        print "GO server execute\n\n"
+        print "SERVER: GO: execute - i will sleep now\n"
+        rospy.sleep(2)
+        print "SERVER: GO: i have finished sleeping - sending 'succeeded'\n"
 
         self.server.set_succeeded()
 

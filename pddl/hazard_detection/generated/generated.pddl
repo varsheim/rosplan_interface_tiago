@@ -7,6 +7,8 @@
 )
 (:init
     (obj_at elektron initial)
+    (obj_at lamp lamp-location)
+    (obj_at door door-location)
 
 
     (linked lamp lamp-location)
