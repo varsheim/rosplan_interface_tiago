@@ -24,7 +24,7 @@ namespace KCL_rosplan {
 //            boost::this_thread::sleep(boost::posix_time::seconds(1));
 //        }
 
-        Client client("check", true); // true -> don't need ros::spin()
+        //Client client("check", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: CHECK: Waiting for sever");
         client.waitForServer();
         rosplan_interface_tiago::CheckGoal goal;
@@ -42,6 +42,7 @@ namespace KCL_rosplan {
         if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
 
         }
+
         ROS_INFO("CLIENT: CHECK: Current State: %s\n", client.getState().toString().c_str());
 
         // complete the action

@@ -21,7 +21,7 @@ namespace KCL_rosplan {
     {
 
     private:
-
+        Client client{"go", true};
     public:
 
         /* constructor */

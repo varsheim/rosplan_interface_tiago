@@ -20,7 +20,7 @@ namespace KCL_rosplan {
 //            boost::this_thread::sleep(boost::posix_time::seconds(1));
 //        }
 
-        Client client("go", true); // true -> don't need ros::spin()
+        //Client client("go", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: GO: Waiting for sever");
         client.waitForServer();
         rosplan_interface_tiago::GoGoal goal;
