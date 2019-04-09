@@ -21,6 +21,8 @@ find_package(catkin REQUIRED COMPONENTS
   genmsg
   actionlib
   actionlib_msgs
+        smach
+        smach_ros
 )
 
 
@@ -110,7 +112,7 @@ generate_messages(DEPENDENCIES actionlib_msgs)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp rospy std_msgs std_srvs diagnostic_msgs geometry_msgs rosplan_dispatch_msgs rosplan_knowledge_msgs rosplan_planning_system genmsg actionlib actionlib_msgs tf
+  CATKIN_DEPENDS roscpp rospy std_msgs std_srvs diagnostic_msgs geometry_msgs rosplan_dispatch_msgs rosplan_knowledge_msgs rosplan_planning_system genmsg actionlib actionlib_msgs smach smach_ros tf
   DEPENDS
 )
 

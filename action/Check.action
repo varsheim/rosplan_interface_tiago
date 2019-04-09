@@ -1,8 +1,8 @@
 # Goal
-uint32 blind_goal
+float32 blind_goal
 ---
 # Result
-uint32 is_undocked
+float32 is_undocked
 ---
-# Message
+# feedback
 float32 percent_complete
