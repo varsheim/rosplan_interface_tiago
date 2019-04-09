@@ -1,9 +1,9 @@
 #!/usr/bin/env python
+import roslib; roslib.load_manifest('rosplan_interface_tiago')
 import rospy
 import smach
+import smach_ros
 
-# action lib
-from smach_ros import ActionServerWrapper
 from rosplan_interface_tiago.msg import CheckAction
 from rosplan_interface_tiago.msg import CheckActionGoal
 from rosplan_interface_tiago.msg import CheckActionFeedback
@@ -23,15 +23,17 @@ class Foo(smach.State):
 
         if self.counter < 3:
             self.counter += 1
+            # print "{}".format(userdata.goal)
             return 'outcome1'
         else:
             feedback = CheckActionFeedback()
             feedback.feedback.percent_complete = 5
             userdata.feedback = feedback
 
-            # action_result = CheckActionResult()
-            # action_result.result.is_undocked = 5
+            action_result = CheckActionResult()
+            action_result.result.is_undocked = 5
             # userdata.result = action_result
+
             return 'outcome2'
 
 
@@ -80,7 +82,7 @@ def main():
     # sis.start()
 
     # Construct action server wrapper
-    asw = ActionServerWrapper(
+    asw = smach_ros.ActionServerWrapper(
         server_name='check',
         action_spec=CheckAction,
         wrapped_container=sm,

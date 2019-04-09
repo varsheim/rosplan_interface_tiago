@@ -44,7 +44,7 @@ namespace KCL_rosplan {
         }
 
         ROS_INFO("CLIENT: CHECK: Current State: %s\n", client.getState().toString().c_str());
-
+        ROS_INFO("CLIENT: CHECK: Result: %f\n", client.getResult().get()->is_undocked);
         // complete the action
         ROS_INFO("KCL: (%s) CHECK Action completing.\n", msg->name.c_str());
         return true;
