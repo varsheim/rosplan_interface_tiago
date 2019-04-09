@@ -32,7 +32,8 @@ class Foo(smach.State):
 
             action_result = CheckActionResult()
             action_result.result.is_undocked = 5
-            # userdata.result = action_result
+            # print "{}".format(userdata.feedback)
+            userdata.result = action_result.result
 
             return 'outcome2'
 
@@ -42,8 +43,7 @@ class Bar(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['outcome2'],
                              input_keys=['goal'],
-                             output_keys=['feedback',
-                                          'result'])
+                             output_keys=['feedback'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state BAR')
