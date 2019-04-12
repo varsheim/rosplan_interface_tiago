@@ -3,6 +3,7 @@ logs/
 build/
 bin/
 lib/
+venv/
 msg_gen/
 srv_gen/
 msg/*Action.msg
