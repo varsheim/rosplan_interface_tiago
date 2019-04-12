@@ -13,7 +13,7 @@
     <node name="rosplan_interface_go_server" pkg="rosplan_interface_tiago" type="go_server.py" respawn="false" output="screen">
     </node>
 
-    <node name="rosplan_interface_check_server" pkg="rosplan_interface_tiago" type="check_server_sm.py" respawn="false" output="screen">
+    <node name="rosplan_interface_check_server" pkg="rosplan_interface_tiago" type="check_server.py" respawn="false" output="screen">
     </node>
 
     <!-- action clients -->
