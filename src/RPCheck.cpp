@@ -18,12 +18,7 @@ namespace KCL_rosplan {
     bool RPCheck::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
 
         // The action implementation goes here.
-
-//        for (uint8_t i = 0; i < 10; i++) {
-//            ROS_INFO("KCL: (%d) % TUTORIAL Action in progress.", (i * 10));
-//            boost::this_thread::sleep(boost::posix_time::seconds(1));
-//        }
-
+        ROS_INFO(msg.get()->parameters.back().value.c_str());
         //Client client("check", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: CHECK: Waiting for sever");
         client.waitForServer();

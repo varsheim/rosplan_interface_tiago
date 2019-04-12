@@ -22,7 +22,7 @@ class Initialize(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
-        rospy.sleep(0.5)
+        rospy.sleep(2)
         return 'ok'
 
 
@@ -39,7 +39,7 @@ class GetData(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # robot movement here
-        rospy.sleep(0.5)
+        rospy.sleep(1)
         return 'ok'
 
 
@@ -57,7 +57,7 @@ class ComputeData(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # robot approach check may be put here, some distances calculated
-        rospy.sleep(0.5)
+        rospy.sleep(1)
         return 'ok'
 
 
@@ -74,7 +74,7 @@ class MakeDecision(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # robot movement here
-        rospy.sleep(0.5)
+        rospy.sleep(1)
         return 'ok'
 
 
@@ -99,7 +99,7 @@ class Finalize(smach.State):
         userdata.final_result = action_result.result
 
         # robot approach check may be put here, some distances calculated
-        rospy.sleep(0.5)
+        rospy.sleep(2)
         return 'ok'
 
 

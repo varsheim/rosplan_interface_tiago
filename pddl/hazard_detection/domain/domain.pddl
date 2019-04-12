@@ -26,7 +26,7 @@
 
 (:durative-action CHECK
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location)
-      :duration ( = ?duration 5)
+      :duration ( = ?duration 10)
       :condition (and
             (over all (obj_at ?obj ?hazloc))
             (over all (linked ?hazard ?hazloc)))

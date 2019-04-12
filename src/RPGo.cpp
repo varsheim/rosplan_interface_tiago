@@ -15,11 +15,6 @@ namespace KCL_rosplan {
 
         // The action implementation goes here.
 
-//        for (uint8_t i = 0; i < 10; i++) {
-//            ROS_INFO("KCL: (%d) % TUTORIAL Action in progress.", (i * 10));
-//            boost::this_thread::sleep(boost::posix_time::seconds(1));
-//        }
-
         //Client client("go", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: GO: Waiting for sever");
         client.waitForServer();
