@@ -18,7 +18,7 @@ namespace KCL_rosplan {
         //Client client("go", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: GO: Waiting for sever");
         client.waitForServer();
-        rosplan_interface_tiago::GoGoal goal;
+        rosplan_tiago_hazard_detection::GoGoal goal;
 
         // Fill in goal here
         goal.blind_goal = 500;

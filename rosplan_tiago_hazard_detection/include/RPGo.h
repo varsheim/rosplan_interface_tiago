@@ -1,35 +1,34 @@
-//
-// Created by robot on 3/29/19.
-//
 #include <ros/ros.h>
 #include <vector>
 #include <boost/thread/thread.hpp>
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_interface_tiago/CheckAction.h>
+#include <rosplan_tiago_hazard_detection/GoAction.h>
 
+#ifndef ROSPLAN_INTERFACE_TIAGO_RPGO_H
+#define ROSPLAN_INTERFACE_TIAGO_RPGO_H
 
-#ifndef ROSPLAN_INTERFACE_TIAGO_RPCHECK_H
-#define ROSPLAN_INTERFACE_TIAGO_RPCHECK_H
+/**
+ * This file defines an action interface created in tutorial 10.
+ */
 
-typedef actionlib::SimpleActionClient<rosplan_interface_tiago::CheckAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_tiago_hazard_detection::GoAction> Client;
 
 namespace KCL_rosplan {
 
-    class RPCheck: public RPActionInterface
+    class RPGo: public RPActionInterface
     {
 
     private:
-        Client client{"check", true};
+        Client client{"go", true};
     public:
 
         /* constructor */
-        RPCheck(ros::NodeHandle &nh);
+        RPGo(ros::NodeHandle &nh);
 
         /* listen to and process action_dispatch topic */
         bool concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg);
     };
 }
-
-#endif //ROSPLAN_INTERFACE_TIAGO_RPCHECK_H
+#endif
