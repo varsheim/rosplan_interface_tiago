@@ -3,28 +3,28 @@
 
     <!-- ROSPlan -->
     <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
-        <arg name="domain_path"		value="$(find rosplan_interface_tiago)/pddl/hazard_detection/domain/domain.pddl" />
-        <arg name="problem_path"	value="$(find rosplan_interface_tiago)/pddl/hazard_detection/problem/problem.pddl" />
-        <arg name="generated_problem_path"	value="$(find rosplan_interface_tiago)/pddl/hazard_detection/generated/generated.pddl" />
+        <arg name="domain_path"		value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/domain/domain.pddl" />
+        <arg name="problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/problem/problem.pddl" />
+        <arg name="generated_problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/generated/generated.pddl" />
     </include>
 
 
     <!-- actionlib servers -->
-    <node name="rosplan_interface_go_server" pkg="rosplan_interface_tiago" type="go_server.py" respawn="false" output="screen">
+    <node name="rosplan_interface_go_server" pkg="rosplan_tiago_hazard_detection" type="go_server.py" respawn="false" output="screen">
     </node>
 
-    <node name="rosplan_interface_check_server" pkg="rosplan_interface_tiago" type="check_server.py" respawn="false" output="screen">
+    <node name="rosplan_interface_check_server" pkg="rosplan_tiago_hazard_detection" type="check_server.py" respawn="false" output="screen">
     </node>
 
     <!-- action clients -->
-    <node name="rosplan_interface_go_client" pkg="rosplan_interface_tiago" type="RPGo" respawn="false" output="screen">
+    <node name="rosplan_interface_go_client" pkg="rosplan_tiago_hazard_detection" type="RPGo" respawn="false" output="screen">
         <param name="knowledge_base"		value="rosplan_knowledge_base" />
         <param name="pddl_action_name"		value="go" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>
 
-    <node name="rosplan_interface_check_client" pkg="rosplan_interface_tiago" type="RPCheck" respawn="false" output="screen">
+    <node name="rosplan_interface_check_client" pkg="rosplan_tiago_hazard_detection" type="RPCheck" respawn="false" output="screen">
         <param name="knowledge_base"		value="rosplan_knowledge_base" />
         <param name="pddl_action_name"		value="check" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />

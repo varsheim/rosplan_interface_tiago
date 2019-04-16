@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('rosplan_interface_tiago')
+import roslib; roslib.load_manifest('rosplan_tiago_hazard_detection')
 import rospy
 import smach
 import smach_ros
 
-from rosplan_interface_tiago.msg import CheckAction
-from rosplan_interface_tiago.msg import CheckActionGoal
-from rosplan_interface_tiago.msg import CheckActionFeedback
-from rosplan_interface_tiago.msg import CheckActionResult
+from rosplan_tiago_hazard_detection.msg import CheckAction
+from rosplan_tiago_hazard_detection.msg import CheckActionGoal
+from rosplan_tiago_hazard_detection.msg import CheckActionFeedback
+from rosplan_tiago_hazard_detection.msg import CheckActionResult
 
 
 class Initialize(smach.State):

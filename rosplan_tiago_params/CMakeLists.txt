@@ -9,7 +9,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  tf2
+  roslib
 )
+
+find_package(Boost REQUIRED COMPONENTS)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -30,7 +34,7 @@ catkin_package(
 )
 
 add_executable(LocationNameServer src/LocationNameServer.cpp)
-target_link_libraries(LocationNameServer ${catkin_LIBRARIES})
+target_link_libraries(LocationNameServer ${catkin_LIBRARIES} yaml-cpp)
 
 
 include_directories(
