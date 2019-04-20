@@ -1,0 +1,26 @@
+[
+   {
+      "value": "initial",
+      "pose2D": {
+         "x": 0,
+         "true": 0,
+         "theta": 0
+      }
+   },
+   {
+      "value": "lamp-location",
+      "pose2D": {
+         "x": 1,
+         "true": 1,
+         "theta": 0.8
+      }
+   },
+   {
+      "value": "door-location",
+      "pose2D": {
+         "x": 2,
+         "true": 2,
+         "theta": 1.57
+      }
+   }
+]

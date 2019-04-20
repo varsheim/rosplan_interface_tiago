@@ -33,8 +33,8 @@ catkin_package(
 
 )
 
-add_executable(LocationNameServer src/LocationNameServer.cpp)
-target_link_libraries(LocationNameServer ${catkin_LIBRARIES} yaml-cpp)
+#add_executable(LocationNameServer src/LocationNameServer.cpp)
+#target_link_libraries(LocationNameServer ${catkin_LIBRARIES} yaml-cpp)
 
 
 include_directories(
