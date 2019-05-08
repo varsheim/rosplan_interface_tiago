@@ -1,5 +1,5 @@
 # Goal
-uint32 blind_goal
+geometry_msgs/Pose pose
 ---
 # Result
 uint32 is_undocked

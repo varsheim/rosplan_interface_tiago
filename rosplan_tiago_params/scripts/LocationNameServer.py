@@ -1,35 +1,58 @@
 #!/usr/bin/env python
 
 import json
-from rospkg import rospack
+import rospkg
 from rosplan_tiago_params.srv import *
 import rospy
 from geometry_msgs.msg import Pose, Point, Quaternion
+from tf.transformations import *
 
-config_path = '/home/luke/tiago_rosplan_ws/src/rosplan_interface_tiago/rosplan_tiago_params/config/location.json'
+CONFIG_RELATIVE_PATH = '/config/location.json'
+PKG_NAME = 'rosplan_tiago_params'
 
 
 def get_pose_by_name(name, config):
-    with open(config_path) as json_data:
-        d = json.load(json_data)
+    is_location_name_found = False
+    x, y, theta = 0, 0, 0
+
+    with open(config, 'r') as json_data:
+        locations = json.load(json_data)
         json_data.close()
-        print d
 
-    point = Point(1, 1, 1)
-    quat = Quaternion(0, 0, 0, 1)
+    for location in locations:
+        if location["value"] == name.location:
+            is_location_name_found = True
+            try:
+                # mathing location name
+                x = location["pose2D"]["x"]
+                y = location["pose2D"]["y"]
+                theta = location["pose2D"]["theta"]
+            except KeyError:
+                # no matching key
+                rospy.logerr("Error getting location values")
+                break
 
+    if is_location_name_found == False:
+        rospy.logerr("No matching location name, returning zeros")
+
+    point = Point(x, y, 0)
+    quat_arr = quaternion_from_euler(0, 0, theta)
+    quat = Quaternion(quat_arr[0], quat_arr[1], quat_arr[2], quat_arr[3])
     pose = Pose(point, quat)
 
-    return pose;
+    return pose
 
 
 def get_location(req):
-    pose = get_pose_by_name("a", "b")
+    rospack = rospkg.RosPack()
+    rospack_path = rospack.get_path(PKG_NAME)
+    pose = get_pose_by_name(req, rospack_path + CONFIG_RELATIVE_PATH)
 
+    # pose = get_pose_by_name("a", "b")
     return GetLocationResponse(pose)
 
 
-def add_two_ints_server():
+def location_name_server():
     rospy.init_node('location_name_server')
     s = rospy.Service('location_name_server', GetLocation, get_location)
     print "Ready to get location by its name (plan value)."
@@ -37,4 +60,4 @@ def add_two_ints_server():
 
 
 if __name__ == "__main__":
-    add_two_ints_server()
+    location_name_server()

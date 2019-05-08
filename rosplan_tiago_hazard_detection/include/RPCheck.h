@@ -8,6 +8,7 @@
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
 #include <rosplan_tiago_hazard_detection/CheckAction.h>
+#include <rosplan_tiago_params/GetLocation.h>
 
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPCHECK_H

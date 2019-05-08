@@ -1,3 +1,4 @@
+#include <rosplan_tiago_params/GetLocation.h>
 #include "RPGo.h"
 
 
@@ -14,6 +15,19 @@ namespace KCL_rosplan {
     bool RPGo::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
 
         // The action implementation goes here.
+        // Get action parameters
+        auto action_parameters = msg.get()->parameters;
+
+        // log available parameters
+        for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
+            ROS_INFO("%s <----> %s", it->key.c_str(), it->value.c_str());
+        }
+
+        // Get the actual values by calling the service
+        rosplan_tiago_params::GetLocation
+
+        ROS_INFO(msg.get()->parameters.back().value.c_str());
+
 
         //Client client("go", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: GO: Waiting for sever");
