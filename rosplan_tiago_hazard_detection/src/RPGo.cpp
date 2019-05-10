@@ -1,6 +1,4 @@
-#include <rosplan_tiago_params/GetLocation.h>
 #include "RPGo.h"
-
 
 
 /* The implementation of RPTutorial.h */
@@ -8,7 +6,8 @@ namespace KCL_rosplan {
 
     /* constructor */
     RPGo::RPGo(ros::NodeHandle &nh) {
-        // perform setup
+        // Create service client for getting location params
+        service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("location_name_service");
     }
 
     /* action dispatch callback */
@@ -20,40 +19,49 @@ namespace KCL_rosplan {
 
         // log available parameters
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
-            ROS_INFO("%s <----> %s", it->key.c_str(), it->value.c_str());
+            if (strcmp(it->key.c_str(), "destination") == 0) {
+                current_destination = it->value.c_str();
+            }
         }
 
         // Get the actual values by calling the service
-        rosplan_tiago_params::GetLocation
+        // Fill the srv message first
+        rosplan_tiago_params::GetLocation srv;
+        srv.request.location = current_destination;
 
-        ROS_INFO(msg.get()->parameters.back().value.c_str());
+        if (service_client.call(srv)) {
+            ROS_INFO("Got matching location params of %s.", current_destination.c_str());
+        }
+        else {
+            ROS_ERROR("Failed to call service location_name_service");
+            return false;
+        }
 
-
-        //Client client("go", true); // true -> don't need ros::spin()
         ROS_INFO("CLIENT: GO: Waiting for sever");
-        client.waitForServer();
+        action_client.waitForServer();
         rosplan_tiago_hazard_detection::GoGoal goal;
 
         // Fill in goal here
-        goal.blind_goal = 500;
+        goal.pose = srv.response.pose;
 
         ROS_INFO("CLIENT: GO: I will send goal now");
-        client.sendGoal(goal);
+        action_client.sendGoal(goal);
 
         ROS_INFO("CLIENT: GO: I will wait for result now");
-        client.waitForResult(ros::Duration(10.0));
+        action_client.waitForResult(ros::Duration(10.0));
 
         ROS_INFO("CLIENT: GO: I received result and it is:");
-        if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-            //ROS_INFO("CLIENT: GO ");
+        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+            // complete the action
+            ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
+
+            return true;
         }
+        else {
+            ROS_INFO("CLIENT: GO: Current State: %s\n", action_client.getState().toString().c_str());
 
-        ROS_INFO("CLIENT: GO: Current State: %s\n", client.getState().toString().c_str());
-
-        // complete the action
-        ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
-        return true;
-
+            return false;
+        }
 
     }
 } // close namespace
@@ -63,7 +71,6 @@ namespace KCL_rosplan {
 /*-------------*/
 
 int main(int argc, char **argv) {
-
     ros::init(argc, argv, "rosplan_go_action_client", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 

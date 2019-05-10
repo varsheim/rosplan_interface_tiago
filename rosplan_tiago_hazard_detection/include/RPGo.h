@@ -5,6 +5,8 @@
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
 #include <rosplan_tiago_hazard_detection/GoAction.h>
+#include <geometry_msgs/Pose.h>
+#include <rosplan_tiago_params/GetLocation.h>
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPGO_H
 #define ROSPLAN_INTERFACE_TIAGO_RPGO_H
@@ -21,7 +23,10 @@ namespace KCL_rosplan {
     {
 
     private:
-        Client client{"go", true};
+        Client action_client{"go", true};
+
+        ros::ServiceClient service_client;
+        std::string current_destination;
     public:
 
         /* constructor */

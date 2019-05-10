@@ -53,8 +53,8 @@ def get_location(req):
 
 
 def location_name_server():
-    rospy.init_node('location_name_server')
-    s = rospy.Service('location_name_server', GetLocation, get_location)
+    rospy.init_node('location_name_service')
+    s = rospy.Service('location_name_service', GetLocation, get_location)
     print "Ready to get location by its name (plan value)."
     rospy.spin()
 

@@ -3,6 +3,7 @@ import roslib; roslib.load_manifest('rosplan_tiago_hazard_detection')
 import rospy
 import smach
 import smach_ros
+from geometry_msgs.msg import Pose
 
 from rosplan_tiago_hazard_detection.msg import GoAction
 from rosplan_tiago_hazard_detection.msg import GoActionGoal
@@ -23,7 +24,12 @@ class Initialize(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
-        rospy.sleep(2)
+        # now the server receives only pose
+        pose = userdata.init_goal
+
+        userdata.init_goal_pose = pose
+
+        rospy.sleep(1)
         return 'ok'
 
 
@@ -39,7 +45,8 @@ class Navigate(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
-        # robot movement here
+        # robot movement here - using Tiago move_base
+
         rospy.sleep(1)
         return 'ok'
 

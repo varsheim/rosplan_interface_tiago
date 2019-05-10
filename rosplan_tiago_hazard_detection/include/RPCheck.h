@@ -1,6 +1,3 @@
-//
-// Created by robot on 3/29/19.
-//
 #include <ros/ros.h>
 #include <vector>
 #include <boost/thread/thread.hpp>
@@ -8,7 +5,6 @@
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
 #include <rosplan_tiago_hazard_detection/CheckAction.h>
-#include <rosplan_tiago_params/GetLocation.h>
 
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPCHECK_H

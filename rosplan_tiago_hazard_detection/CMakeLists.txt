@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 	rosplan_dispatch_msgs
 	rosplan_knowledge_msgs
 	rosplan_planning_system
+	rosplan_tiago_params
 	rospy
 	std_msgs
 	std_srvs
@@ -31,7 +32,7 @@ find_package(Boost REQUIRED COMPONENTS thread)
 add_action_files(FILES Go.action Check.action)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES actionlib_msgs)
+generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 
 catkin_package(
 	LIBRARIES ${PROJECT_NAME}
