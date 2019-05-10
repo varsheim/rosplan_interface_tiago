@@ -7,7 +7,7 @@ namespace KCL_rosplan {
     /* constructor */
     RPGo::RPGo(ros::NodeHandle &nh) {
         // Create service client for getting location params
-        service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("location_name_service");
+        service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
     }
 
     /* action dispatch callback */
@@ -21,6 +21,7 @@ namespace KCL_rosplan {
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
             if (strcmp(it->key.c_str(), "destination") == 0) {
                 current_destination = it->value.c_str();
+                ROS_INFO(current_destination.c_str());
             }
         }
 
@@ -28,6 +29,8 @@ namespace KCL_rosplan {
         // Fill the srv message first
         rosplan_tiago_params::GetLocation srv;
         srv.request.location = current_destination;
+
+        ROS_INFO(srv.request.location.c_str());
 
         if (service_client.call(srv)) {
             ROS_INFO("Got matching location params of %s.", current_destination.c_str());

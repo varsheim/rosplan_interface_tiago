@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import roslib; roslib.load_manifest('rosplan_tiago_hazard_detection')
+# import roslib; roslib.load_manifest('rosplan_tiago_hazard_detection')
 import rospy
 import smach
 import smach_ros
@@ -10,6 +10,7 @@ from rosplan_tiago_hazard_detection.msg import GoActionGoal
 from rosplan_tiago_hazard_detection.msg import GoActionFeedback
 from rosplan_tiago_hazard_detection.msg import GoActionResult
 
+from rosplan_tiago_common.tiago_utils import move_base_set_goal
 
 class Initialize(smach.State):
     def __init__(self):
@@ -25,7 +26,7 @@ class Initialize(smach.State):
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
-        pose = userdata.init_goal
+        pose = userdata.init_goal.pose
 
         userdata.init_goal_pose = pose
 
@@ -46,8 +47,13 @@ class Navigate(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
+        pose = userdata.nav_goal_pose
 
-        rospy.sleep(1)
+        # now movebase
+        move_base_set_goal(pose)
+        print pose
+
+        rospy.sleep(3)
         return 'ok'
 
 

@@ -10,16 +10,16 @@
    {
       "value": "lamp-location",
       "pose2D": {
-         "x": 1,
-         "y": 1,
+         "x": 2,
+         "y": -1,
          "theta": 0.8
       }
    },
    {
       "value": "door-location",
       "pose2D": {
-         "x": 2,
-         "y": 2,
+         "x": 3,
+         "y": -1.5,
          "theta": 1.57
       }
    }
