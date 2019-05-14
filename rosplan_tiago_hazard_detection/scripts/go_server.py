@@ -12,6 +12,7 @@ from rosplan_tiago_hazard_detection.msg import GoActionResult
 
 from rosplan_tiago_common.tiago_utils import move_base_set_goal
 
+
 class Initialize(smach.State):
     def __init__(self):
         smach.State.__init__(self,
@@ -53,7 +54,7 @@ class Navigate(smach.State):
         move_base_set_goal(pose)
         print pose
 
-        rospy.sleep(3)
+        rospy.sleep(15)
         return 'ok'
 
 

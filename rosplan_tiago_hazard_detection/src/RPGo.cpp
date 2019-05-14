@@ -17,11 +17,10 @@ namespace KCL_rosplan {
         // Get action parameters
         auto action_parameters = msg.get()->parameters;
 
-        // log available parameters
+
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
             if (strcmp(it->key.c_str(), "destination") == 0) {
                 current_destination = it->value.c_str();
-                ROS_INFO(current_destination.c_str());
             }
         }
 
@@ -29,8 +28,6 @@ namespace KCL_rosplan {
         // Fill the srv message first
         rosplan_tiago_params::GetLocation srv;
         srv.request.location = current_destination;
-
-        ROS_INFO(srv.request.location.c_str());
 
         if (service_client.call(srv)) {
             ROS_INFO("Got matching location params of %s.", current_destination.c_str());
@@ -40,20 +37,15 @@ namespace KCL_rosplan {
             return false;
         }
 
-        ROS_INFO("CLIENT: GO: Waiting for sever");
         action_client.waitForServer();
         rosplan_tiago_hazard_detection::GoGoal goal;
 
         // Fill in goal here
         goal.pose = srv.response.pose;
-
-        ROS_INFO("CLIENT: GO: I will send goal now");
         action_client.sendGoal(goal);
+        action_client.waitForResult(ros::Duration(30.0));
 
-        ROS_INFO("CLIENT: GO: I will wait for result now");
-        action_client.waitForResult(ros::Duration(10.0));
 
-        ROS_INFO("CLIENT: GO: I received result and it is:");
         if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
             // complete the action
             ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
@@ -65,7 +57,6 @@ namespace KCL_rosplan {
 
             return false;
         }
-
     }
 } // close namespace
 
