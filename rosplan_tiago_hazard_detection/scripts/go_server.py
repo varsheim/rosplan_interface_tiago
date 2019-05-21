@@ -54,7 +54,7 @@ class Navigate(smach.State):
         move_base_set_goal(pose)
         print pose
 
-        rospy.sleep(15)
+        rospy.sleep(20)
         return 'ok'
 
 

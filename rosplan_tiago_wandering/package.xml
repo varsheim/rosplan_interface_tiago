@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rosplan_tiago_wandering</name>
+  <version>0.0.0</version>
+  <description>The rosplan_tiago_wandering package</description>
+
+  <maintainer email="robot@todo.todo">robot</maintainer>
+
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>smach</depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>genmsg</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>roscpp</depend>
+  <depend>rosplan_dispatch_msgs</depend>
+  <depend>rosplan_knowledge_msgs</depend>
+  <depend>rosplan_planning_system</depend>
+  <depend>rosplan_tiago_common</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>tf</depend>
+
+  <export>
+
+  </export>
+</package>
