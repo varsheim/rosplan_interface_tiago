@@ -3,13 +3,10 @@
 (:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
 
 (:types
-    hazard robot-greet - linkable
+    robot-greet - linkable
     distance
     robot item human - locatable
-    hazard-location - location
-    greet-location - location
-    human-location - location
-    item-location - location
+    greet-location human-location item-location robot-location - location
 )
 
 (:predicates
@@ -19,13 +16,13 @@
     (gave ?item - item ?human - human)
     (greeted ?human - human)
     (obj_at ?obj - locatable ?loc - location)
-    (checked ?hazard - hazard)
-    (linked_to_location ?ln - linkable ?loc - location)
     (linked_to_locatable ?ln - linkable ?lcbl - locatable)
 )
 
 (:durative-action GO
-      :parameters (?obj - robot ?start - location ?destination - location)
+      :parameters (?obj - robot
+                   ?start - location
+                   ?destination - location)
       :duration ( = ?duration 60)
       :condition (and
             (at start (obj_at ?obj ?start)))
@@ -34,28 +31,24 @@
             (at start (not (obj_at ?obj ?start))))
 )
 
-(:durative-action CHECK
-      :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location)
-      :duration ( = ?duration 5)
-      :condition (and
-            (over all (obj_at ?obj ?hazloc))
-            (over all (linked2location ?hazard ?hazloc)))
-      :effect (and
-            (at end (checked ?hazard)))
-)
-
 (:durative-action GREET
-      :parameters (?obj - robot ?greet - robot-greet ?human - human ?humanloc - human-location ?from - distance)
+      :parameters (?obj - robot
+                   ?greet - robot-greet
+                   ?human - human
+                   ?humanloc - human-location
+                   ?from - distance)
       :duration ( = ?duration 8)
       :condition (and
             (over all (obj_at ?obj ?humanloc))
-            (over all (linked2locatable ?greet ?human)))
+            (over all (linked_to_locatable ?greet ?human)))
       :effect (and
             (at end (greeted ?human)))
 )
 
 (:durative-action GET_ITEM
-       :parameters (?obj - robot ?itemloc - item-location ?item - item)
+       :parameters (?obj - robot
+                    ?itemloc - item-location
+                    ?item - item)
        :duration ( = ?duration 15)
        :condition (and
              (at start (empty_robot))
@@ -67,7 +60,11 @@
 )
 
 (:durative-action GIVE_ITEM
-       :parameters (?obj - robot ?item - item ?human - human ?humanloc - human-location ?from - distance)
+       :parameters (?obj - robot
+                    ?item - item
+                    ?human - human
+                    ?humanloc - human-location
+                    ?from - distance)
        :duration ( = ?duration 10)
        :condition (and
              (at start (item_on_robot ?item))

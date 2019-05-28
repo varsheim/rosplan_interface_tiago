@@ -1,12 +1,13 @@
 (define (problem task)
+
 (:domain wandering)
+
 (:objects
     rico - robot
     luke john - human
     glass sandwich - item
     glass-location sandwich-location - item-location
-    door lamp - hazard
-    initial lamp-location door-location - hazard-location
+    initial - robot-location
     luke-location john-location - human-location
     nod look-around - robot-greet
 )
@@ -19,9 +20,8 @@
     (obj_at luke luke-location)
     (obj_at john john-location)
 
-    (linked2locatable nod luke)
-    (linked2locatable look-around john)
-
+    (linked_to_locatable nod luke)
+    (linked_to_locatable look-around john)
 )
 
 (:goal (and

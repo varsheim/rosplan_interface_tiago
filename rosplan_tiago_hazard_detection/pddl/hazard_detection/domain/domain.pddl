@@ -11,7 +11,7 @@
 (:predicates
     (obj_at ?obj - locatable ?loc - location )
     (checked ?hazard - hazard)
-    (linked ?hazard - linkable ?loc - hazard-location)
+    (linked ?hazard - linkable ?loc - location)
 )
 
 (:durative-action GO
