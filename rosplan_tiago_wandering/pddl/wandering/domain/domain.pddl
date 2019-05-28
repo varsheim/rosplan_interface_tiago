@@ -3,7 +3,7 @@
 (:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
 
 (:types
-    robot-greet - linkable
+    robot-greet
     distance
     robot item human - locatable
     greet-location human-location item-location robot-location - location
@@ -14,9 +14,9 @@
     (not_empty_robot)
     (item_on_robot ?item - item)
     (gave ?item - item ?human - human)
-    (greeted ?human - human)
+    (greeted ?greet - robot-greet ?human - human)
     (obj_at ?obj - locatable ?loc - location)
-    (linked_to_locatable ?ln - linkable ?lcbl - locatable)
+    (linked_to_location ?lcbl - locatable ?loc - location)
 )
 
 (:durative-action GO
@@ -36,13 +36,14 @@
                    ?greet - robot-greet
                    ?human - human
                    ?humanloc - human-location
+                   ?greetloc - greet-location
                    ?from - distance)
       :duration ( = ?duration 8)
       :condition (and
-            (over all (obj_at ?obj ?humanloc))
-            (over all (linked_to_locatable ?greet ?human)))
+            (over all (linked_to_location ?human ?greetloc))
+            (over all (obj_at ?obj ?greetloc)))
       :effect (and
-            (at end (greeted ?human)))
+            (at end (greeted ?greet ?human)))
 )
 
 (:durative-action GET_ITEM

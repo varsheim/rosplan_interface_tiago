@@ -20,15 +20,15 @@
     (obj_at luke luke-location)
     (obj_at john john-location)
 
-    (linked_to_locatable nod luke)
-    (linked_to_locatable look-around john)
+    (linked_to_location luke luke-location)
+    (linked_to_location john john-location)
 )
 
 (:goal (and
-    (greeted luke)
-    (greeted john)
-    (gave glass luke)
-    (gave sandwich john)
+    (greeted nod luke)
+    (greeted look-around john)
+    (gave glass john)
+    (gave sandwich luke)
     (obj_at rico initial)
     )
 )
