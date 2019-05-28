@@ -3,7 +3,7 @@
 (:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
 
 (:types
-    hazard
+    hazard - linkable
     robot - locatable
     hazard-location - location
 )
@@ -11,7 +11,7 @@
 (:predicates
     (obj_at ?obj - locatable ?loc - location )
     (checked ?hazard - hazard)
-    (linked ?hazard - hazard ?loc - hazard-location)
+    (linked ?hazard - linkable ?loc - hazard-location)
 )
 
 (:durative-action GO

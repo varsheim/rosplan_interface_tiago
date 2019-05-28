@@ -7,6 +7,8 @@
     glass-location sandwich-location - item-location
     door lamp - hazard
     initial lamp-location door-location - hazard-location
+    luke-location john-location - human-location
+    nod look-around - robot-greet
 )
 
 (:init
@@ -17,8 +19,8 @@
     (obj_at luke luke-location)
     (obj_at john john-location)
 
-    (linked lamp lamp-location)
-    (linked door door-location)
+    (linked2locatable nod luke)
+    (linked2locatable look-around john)
 
 )
 
@@ -28,7 +30,8 @@
     (gave glass luke)
     (gave sandwich john)
     (obj_at rico initial)
-))
+    )
+)
 
 )
 
