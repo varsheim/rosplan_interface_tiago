@@ -1,0 +1,9 @@
+# Goal
+string item
+---
+# Result
+bool is_item_acquired
+---
+# Message
+int16 time_left
+bool is_item_detected

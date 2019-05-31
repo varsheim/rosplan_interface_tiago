@@ -1,0 +1,8 @@
+# Goal
+string greet_scenario
+---
+# Result
+bool is_greeted
+---
+# Message
+int16 percent_complete
