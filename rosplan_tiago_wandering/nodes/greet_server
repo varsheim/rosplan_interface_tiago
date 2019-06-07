@@ -20,40 +20,35 @@ class Initialize(smach.State):
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
                              output_keys=['init_feedback',
-                                          'init_goal_pose',
-                                          'init_params'])
+                                          'init_greet'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
-        pose = userdata.init_goal.pose
-
-        userdata.init_goal_pose = pose
+        greet = userdata.init_goal.greet_scenario
+        #
+        userdata.init_greet = greet
 
         rospy.sleep(1)
         return 'ok'
 
 
-class Navigate(smach.State):
+class Dummy(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['nav_goal_pose',
-                                         'nav_params'],
-                             output_keys=['nav_feedback',
-                                          'nav_actual_pose'])
+                             input_keys=['dummy_greet'],
+                             output_keys=['dummy_feedback',
+                                          'dummy_greeted_scenario'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
-        # robot movement here - using Tiago move_base
-        pose = userdata.nav_goal_pose
+        greet = userdata.dummy_greet
 
-        # now movebase
-        move_base_set_goal(pose)
-        print pose
+        print greet
 
         rospy.sleep(20)
         return 'ok'
@@ -63,7 +58,7 @@ class Finalize(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_actual_pose'],
+                             input_keys=['final_greeted_scenario'],
                              output_keys=['final_feedback',
                                           'final_result'])
 
@@ -79,7 +74,6 @@ class Finalize(smach.State):
         action_result.result.is_greeted = True
         userdata.final_result = action_result.result
 
-        # robot approach check may be put here, some distances calculated
         rospy.sleep(2)
         return 'ok'
 
@@ -89,7 +83,7 @@ class GreetServer(smach.StateMachine):
         smach.StateMachine.__init__(self,
                                     outcomes=['PREEMPTED',
                                               'FAILED',
-                                              'APPROACHED'],
+                                              'GREETED'],
                                     input_keys=['sm_goal'],
                                     output_keys=['sm_feedback',
                                                  'sm_result'])
@@ -98,30 +92,28 @@ class GreetServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Navigate',
+                                   transitions={'ok': 'Dummy',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_feedback': 'sm_feedback',
-                                              'init_goal_pose': 'sm_goal_pose',
-                                              'init_params': 'sm_params'})
+                                              'init_greet': 'sm_greet'})
 
-            smach.StateMachine.add('Navigate',
-                                   Navigate(),
+            smach.StateMachine.add('Dummy',
+                                   Dummy(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'nav_goal_pose': 'sm_goal_pose',
-                                              'nav_params': 'sm_params',
-                                              'nav_feedback': 'sm_feedback',
-                                              'nav_actual_pose': 'sm_actual_pose'})
+                                   remapping={'dummy_greet': 'sm_greet',
+                                              'dummy_feedback': 'sm_feedback',
+                                              'dummy_greeted_scenario': 'sm_greeted_scenario'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
-                                                'ok': 'APPROACHED'},
-                                   remapping={'final_actual_pose': 'sm_actual_pose',
+                                                'ok': 'GREETED'},
+                                   remapping={'final_greeted_scenario': 'sm_greeted_scenario',
                                               'final_feedback': 'sm_feedback',
                                               'final_result': 'sm_result'})
 
@@ -141,7 +133,7 @@ def main():
         server_name='greet',
         action_spec=GreetAction,
         wrapped_container=sm,
-        succeeded_outcomes=['APPROACHED'],
+        succeeded_outcomes=['GREETED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
         goal_key='sm_goal',

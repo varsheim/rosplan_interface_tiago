@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-# import roslib; roslib.load_manifest('rosplan_tiago_hazard_detection')
 import rospy
 import smach
 import smach_ros
-from geometry_msgs.msg import Pose
+import actionlib
 
+from geometry_msgs.msg import Pose
 from rosplan_tiago_hazard_detection.msg import GoAction
 from rosplan_tiago_hazard_detection.msg import GoActionGoal
 from rosplan_tiago_hazard_detection.msg import GoActionFeedback
 from rosplan_tiago_hazard_detection.msg import GoActionResult
 
-from rosplan_tiago_common.tiago_utils import move_base_set_goal
+from move_base_msgs.msg import *
 
 
 class Initialize(smach.State):
@@ -50,8 +50,19 @@ class Navigate(smach.State):
         # robot movement here - using Tiago move_base
         pose = userdata.nav_goal_pose
 
-        # now movebase
-        move_base_set_goal(pose)
+        goal = MoveBaseGoal()
+
+        goal.target_pose.pose = pose
+        goal.target_pose.header.frame_id = 'map'
+        goal.target_pose.header.stamp = rospy.Time.now()
+
+        client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        client.wait_for_server()
+
+
+        # start moving
+        client.send_goal(goal)
+
         print pose
 
         rospy.sleep(20)
@@ -77,6 +88,10 @@ class Finalize(smach.State):
         action_result = GoActionResult()
         action_result.result.is_undocked = 1
         userdata.final_result = action_result.result
+
+        # calc pose initial distance
+
+        # calc current distance in a loop
 
         # robot approach check may be put here, some distances calculated
         rospy.sleep(2)

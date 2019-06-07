@@ -20,7 +20,7 @@ class Initialize(smach.State):
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
                              output_keys=['init_feedback',
-                                          'init_goal_pose',
+                                          'init_item',
                                           'init_params'])
 
     def execute(self, userdata):
@@ -28,32 +28,30 @@ class Initialize(smach.State):
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
-        pose = userdata.init_goal.pose
+        item = userdata.init_goal.item
 
-        userdata.init_goal_pose = pose
+        userdata.init_item = item
 
         rospy.sleep(1)
         return 'ok'
 
 
-class Navigate(smach.State):
+class Dummy(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['nav_goal_pose',
-                                         'nav_params'],
-                             output_keys=['nav_feedback',
-                                          'nav_actual_pose'])
+                             input_keys=['dummy_item',
+                                         'dummy_params'],
+                             output_keys=['dummy_feedback',
+                                          'dummy_info'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
-        pose = userdata.nav_goal_pose
+        item = userdata.dummy_item
 
-        # now movebase
-        move_base_set_goal(pose)
-        print pose
+        print item
 
         rospy.sleep(20)
         return 'ok'
@@ -63,7 +61,7 @@ class Finalize(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_actual_pose'],
+                             input_keys=['final_info'],
                              output_keys=['final_feedback',
                                           'final_result'])
 
@@ -80,7 +78,6 @@ class Finalize(smach.State):
         action_result.result.is_item_given = True
         userdata.final_result = action_result.result
 
-        # robot approach check may be put here, some distances calculated
         rospy.sleep(2)
         return 'ok'
 
@@ -90,7 +87,7 @@ class GiveItemServer(smach.StateMachine):
         smach.StateMachine.__init__(self,
                                     outcomes=['PREEMPTED',
                                               'FAILED',
-                                              'APPROACHED'],
+                                              'GAVE_ITEM'],
                                     input_keys=['sm_goal'],
                                     output_keys=['sm_feedback',
                                                  'sm_result'])
@@ -99,30 +96,30 @@ class GiveItemServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Navigate',
+                                   transitions={'ok': 'Dummy',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_feedback': 'sm_feedback',
-                                              'init_goal_pose': 'sm_goal_pose',
+                                              'init_item': 'sm_item',
                                               'init_params': 'sm_params'})
 
-            smach.StateMachine.add('Navigate',
-                                   Navigate(),
+            smach.StateMachine.add('Dummy',
+                                   Dummy(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'nav_goal_pose': 'sm_goal_pose',
-                                              'nav_params': 'sm_params',
-                                              'nav_feedback': 'sm_feedback',
-                                              'nav_actual_pose': 'sm_actual_pose'})
+                                   remapping={'dummy_item': 'sm_item',
+                                              'dummy_params': 'sm_params',
+                                              'dummy_feedback': 'sm_feedback',
+                                              'dummy_info': 'sm_info'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
-                                                'ok': 'APPROACHED'},
-                                   remapping={'final_actual_pose': 'sm_actual_pose',
+                                                'ok': 'GAVE_ITEM'},
+                                   remapping={'final_info': 'sm_info',
                                               'final_feedback': 'sm_feedback',
                                               'final_result': 'sm_result'})
 
@@ -142,7 +139,7 @@ def main():
         server_name='give_item',
         action_spec=GiveItemAction,
         wrapped_container=sm,
-        succeeded_outcomes=['APPROACHED'],
+        succeeded_outcomes=['GAVE_ITEM'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
         goal_key='sm_goal',
