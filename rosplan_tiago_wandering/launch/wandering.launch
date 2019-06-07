@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- ROSPlan -->
+    <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+        <arg name="domain_path"		value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/domain/domain.pddl" />
+        <arg name="problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/problem/problem.pddl" />
+        <arg name="generated_problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/generated/generated.pddl" />
+    </include>
+
+
+    <!-- actionlib servers -->
+    <node name="rosplan_interface_go_server" pkg="rosplan_tiago_hazard_detection" type="go_server.py" respawn="false" output="screen"/>
+
+    <node name="rosplan_interface_greet_server" pkg="rosplan_tiago_wandering" type="greet_server" respawn="false" output="screen"/>
+    <node name="rosplan_interface_get_item_server" pkg="rosplan_tiago_wandering" type="get_item_server.py" respawn="false" output="screen"/>
+    <node name="rosplan_interface_give_item_server" pkg="rosplan_tiago_wandering" type="give_item_server.py" respawn="false" output="screen"/>
+
+    <!-- action clients -->
+    <node name="rosplan_interface_go_client" pkg="rosplan_tiago_hazard_detection" type="RPGo" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="go" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_greet_client" pkg="rosplan_tiago_wandering" type="RPGreet" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="greet" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_get_item_client" pkg="rosplan_tiago_wandering" type="RPGetItem" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="get_item" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_give_item_client" pkg="rosplan_tiago_wandering" type="RPGiveItem" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="give_item" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+</launch>

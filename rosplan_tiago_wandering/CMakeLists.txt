@@ -30,12 +30,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 
 ## Generate actions in the 'action' folder
-#add_action_files(FILES Go.action Check.action)
+add_action_files(FILES GetItem.action GiveItem.action Greet.action)
 
 catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
-#generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
+generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 
 catkin_package(
 	LIBRARIES ${PROJECT_NAME}

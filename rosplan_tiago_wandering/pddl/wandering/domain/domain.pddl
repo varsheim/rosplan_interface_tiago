@@ -5,7 +5,7 @@
 (:types
     robot-greet
     distance
-    robot item human - locatable
+    robot human item - locatable
     greet-location human-location item-location robot-location - location
 )
 
@@ -35,25 +35,24 @@
       :parameters (?obj - robot
                    ?greet - robot-greet
                    ?human - human
-                   ?humanloc - human-location
-                   ?greetloc - greet-location
-                   ?from - distance)
+                   ?greetloc - location)
       :duration ( = ?duration 8)
       :condition (and
-            (over all (linked_to_location ?human ?greetloc))
-            (over all (obj_at ?obj ?greetloc)))
+            (over all (obj_at ?obj ?greetloc))
+            (over all (linked_to_location ?human ?greetloc))) ;greetloc needs to be somehow connected to the action so the GO action can get this param
       :effect (and
             (at end (greeted ?greet ?human)))
 )
 
 (:durative-action GET_ITEM
        :parameters (?obj - robot
-                    ?itemloc - item-location
+                    ?itemloc - location
                     ?item - item)
        :duration ( = ?duration 15)
        :condition (and
              (at start (empty_robot))
-             (over all (obj_at ?obj ?itemloc)))
+             (over all (obj_at ?obj ?itemloc))
+             (over all (linked_to_location ?item ?itemloc)))
         :effect (and
              (at start (not_empty_robot))
              (at start (not (empty_robot)))
@@ -64,13 +63,13 @@
        :parameters (?obj - robot
                     ?item - item
                     ?human - human
-                    ?humanloc - human-location
-                    ?from - distance)
+                    ?humanloc - location)
        :duration ( = ?duration 10)
        :condition (and
              (at start (item_on_robot ?item))
              (at start (not_empty_robot))
-             (over all (obj_at ?obj ?humanloc))))
+             (over all (obj_at ?obj ?humanloc))
+             (over all (linked_to_location ?human ?humanloc)))
         :effect (and
              (at start (not (not_empty_robot)))
              (at start (empty_robot))
