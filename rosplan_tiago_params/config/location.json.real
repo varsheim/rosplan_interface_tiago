@@ -1,0 +1,58 @@
+[
+   {
+      "value": "initial",
+      "pose2D": {
+         "x": 0.6,
+         "y": 0,
+         "theta": 0
+      }
+   },
+   {
+      "value": "lamp-location",
+      "pose2D": {
+         "x": 4.60,
+         "y": 0,
+         "theta": 0.8
+      }
+   },
+   {
+      "value": "door-location",
+      "pose2D": {
+         "x": 5,
+         "y": 3,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "glass-location",
+      "pose2D": {
+         "x": 5,
+         "y": 3,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "sandwich-location",
+      "pose2D": {
+         "x": 0.6,
+         "y": 0,
+         "theta": 1.0
+      }
+   },
+   {
+      "value": "luke-location",
+      "pose2D": {
+         "x": 5,
+         "y": 3,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "john-location",
+      "pose2D": {
+         "x": 0.6,
+         "y": 0,
+         "theta": 1.0
+      }
+   }
+]

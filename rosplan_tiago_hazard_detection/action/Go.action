@@ -2,7 +2,7 @@
 geometry_msgs/Pose pose
 ---
 # Result
-uint32 is_undocked
+bool is_goal_accomplished
 ---
-# Message
-float32 percent_complete
+# Feedback
+geometry_msgs/Pose current_pose
