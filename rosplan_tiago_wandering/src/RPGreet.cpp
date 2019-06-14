@@ -15,12 +15,16 @@ namespace KCL_rosplan {
 		// The action implementation goes here.
 		// Get action parameters
 		auto action_parameters = msg.get()->parameters;
+		auto action_duration_s = msg.get()->duration;
+
 
 		for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
 			if (strcmp(it->key.c_str(), "greet") == 0) {
 				action_param_greet_scenario = it->value.c_str();
 			}
 		}
+
+		float action_real_duration_s = action_duration_s + ACTION_ADDITION_TIME_S;
 
 //		rosplan_tiago_params::GetLocation srv;
 //		srv.request.location = current_destination;
@@ -39,7 +43,7 @@ namespace KCL_rosplan {
 		// Fill in goal here
 		goal.greet_scenario = action_param_greet_scenario;
 		action_client.sendGoal(goal);
-		action_client.waitForResult(ros::Duration(30.0));
+		action_client.waitForResult(ros::Duration(action_real_duration_s));
 
 
 		if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {

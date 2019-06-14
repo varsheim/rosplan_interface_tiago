@@ -57,12 +57,12 @@ class Initialize(smach.State):
 
 
 class Navigate(smach.State):
-    current_pose = Pose()
-    is_feedback_received = False
-    is_goal_achieved = False
-    move_base_status = PENDING
-
     def __init__(self):
+        self.current_pose = Pose()
+        self.is_feedback_received = False
+        self.move_base_status = PENDING
+        self.is_goal_achieved = False
+
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['nav_goal_pose',
@@ -94,6 +94,9 @@ class Navigate(smach.State):
         userdata.nav_result = action_result.result
 
         start_time = rospy.Time.now()
+        print 'IS GOAL ACHIEVED: {}'.format(self.is_goal_achieved)
+
+        self.is_goal_achieved = False
         while self.is_goal_achieved == False:
             action_feedback.feedback.current_pose = self.current_pose
 
@@ -106,6 +109,7 @@ class Navigate(smach.State):
 
             if loop_time_s > NAVIGATION_MAX_TIME_S:
                 # break the loop, end with error state
+                rospy.logwarn('State: Navigation took too much time, returning error')
                 return 'error'
 
             rospy.sleep(0.05)

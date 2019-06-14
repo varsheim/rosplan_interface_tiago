@@ -29,6 +29,5 @@
     (greeted look-around john)
     (gave glass john)
     (gave sandwich luke)
-    (obj_at rico initial)
 ))
 )

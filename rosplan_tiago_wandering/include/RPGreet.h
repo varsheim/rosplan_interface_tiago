@@ -15,6 +15,8 @@
  * This file defines an action interface created in tutorial 10.
  */
 
+#define ACTION_ADDITION_TIME_S 2
+
 typedef actionlib::SimpleActionClient<rosplan_tiago_wandering::GreetAction> Client;
 
 namespace KCL_rosplan {

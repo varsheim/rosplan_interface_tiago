@@ -28,39 +28,75 @@ class Initialize(smach.State):
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
         greet = userdata.init_goal.greet_scenario
-        #
         userdata.init_greet = greet
 
         rospy.sleep(1)
         return 'ok'
 
 
-class Dummy(smach.State):
+class HumanSeek(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['dummy_greet'],
-                             output_keys=['dummy_feedback',
-                                          'dummy_greeted_scenario'])
+                             input_keys=[],
+                             output_keys=['humanseek_feedback'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
-        greet = userdata.dummy_greet
-
-        print greet
-
-        rospy.sleep(20)
+        rospy.sleep(1)
         return 'ok'
 
 
-class Finalize(smach.State):
+class HumanTurn(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_greeted_scenario'],
-                             output_keys=['final_feedback',
-                                          'final_result'])
+                             input_keys=[],
+                             output_keys=['humanturn_feedback'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+
+        rospy.sleep(1)
+        return 'ok'
+
+
+class SayGreet(smach.State):
+    def __init__(self):
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'],
+                             input_keys=[],
+                             output_keys=['saygreet_feedback'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+
+        rospy.sleep(1)
+        return 'ok'
+
+
+class MoveHead(smach.State):
+    def __init__(self):
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'],
+                             input_keys=[],
+                             output_keys=['movehead_feedback'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+
+        rospy.sleep(1)
+        return 'ok'
+
+
+class SayBye(smach.State):
+    def __init__(self):
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'],
+                             input_keys=[],
+                             output_keys=['saybye_feedback',
+                                          'saybye_result'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
@@ -68,11 +104,11 @@ class Finalize(smach.State):
         # prepare some feedback & result
         action_feedback = GreetActionFeedback()
         action_feedback.feedback.percent_complete = 59
-        userdata.final_feedback = action_feedback.feedback
+        userdata.saybye_feedback = action_feedback.feedback
 
         action_result = GreetActionResult()
         action_result.result.is_greeted = True
-        userdata.final_result = action_result.result
+        userdata.saybye_result = action_result.result
 
         rospy.sleep(2)
         return 'ok'
@@ -92,30 +128,48 @@ class GreetServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Dummy',
+                                   transitions={'ok': 'HumanSeek',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_feedback': 'sm_feedback',
                                               'init_greet': 'sm_greet'})
 
-            smach.StateMachine.add('Dummy',
-                                   Dummy(),
-                                   transitions={'ok': 'Finalize',
+            smach.StateMachine.add('HumanSeek',
+                                   HumanSeek(),
+                                   transitions={'ok': 'HumanTurn',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'dummy_greet': 'sm_greet',
-                                              'dummy_feedback': 'sm_feedback',
-                                              'dummy_greeted_scenario': 'sm_greeted_scenario'})
+                                   remapping={'humanseek_feedback': 'sm_feedback'})
 
-            smach.StateMachine.add('Finalize',
-                                   Finalize(),
-                                   transitions={'preemption': 'PREEMPTED',
-                                                'error': 'FAILED',
-                                                'ok': 'GREETED'},
-                                   remapping={'final_greeted_scenario': 'sm_greeted_scenario',
-                                              'final_feedback': 'sm_feedback',
-                                              'final_result': 'sm_result'})
+            smach.StateMachine.add('HumanTurn',
+                                   HumanTurn(),
+                                   transitions={'ok': 'SayGreet',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'humanturn_feedback': 'sm_feedback'})
+
+            smach.StateMachine.add('SayGreet',
+                                   SayGreet(),
+                                   transitions={'ok': 'MoveHead',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'saygreet_feedback': 'sm_feedback'})
+
+            smach.StateMachine.add('MoveHead',
+                                   MoveHead(),
+                                   transitions={'ok': 'SayBye',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'movehead_feedback': 'sm_feedback'})
+
+            smach.StateMachine.add('SayBye',
+                                   SayBye(),
+                                   transitions={'ok': 'GREETED',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'saybye_feedback': 'sm_feedback',
+                                              'saybye_result': 'sm_result'})
 
 
 def main():
