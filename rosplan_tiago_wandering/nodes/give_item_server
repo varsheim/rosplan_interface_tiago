@@ -53,7 +53,7 @@ class Dummy(smach.State):
 
         print item
 
-        rospy.sleep(20)
+        rospy.sleep(3)
         return 'ok'
 
 
