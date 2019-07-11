@@ -21,6 +21,8 @@ add_service_files(
   GetLocation.srv
 )
 
+catkin_python_setup()
+
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
@@ -35,7 +37,11 @@ catkin_package(
 
 
 include_directories(
-
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
+install(PROGRAMS
+	nodes/location_name_server
+	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+	)
