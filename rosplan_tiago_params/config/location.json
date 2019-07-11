@@ -22,5 +22,53 @@
          "y": 3,
          "theta": 1.57
       }
+   },
+   {
+      "value": "glass-location",
+      "pose2D": {
+         "x": 5,
+         "y": 1.24,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "sandwich-location",
+      "pose2D": {
+         "x": 5,
+         "y": 1.24,
+         "theta": 1.0
+      }
+   },
+   {
+      "value": "luke-location",
+      "pose2D": {
+         "x": 5,
+         "y": 3,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "john-location",
+      "pose2D": {
+         "x": 0.6,
+         "y": 0,
+         "theta": 1.0
+      }
+   },
+   {
+      "value": "luke-greet-location",
+      "pose2D": {
+         "x": 4.8,
+         "y": -0.7,
+         "theta": 1.57
+      }
+   },
+   {
+      "value": "john-greet-location",
+      "pose2D": {
+         "x": 2,
+         "y": 0.8,
+         "theta": 1.0
+      }
    }
 ]
