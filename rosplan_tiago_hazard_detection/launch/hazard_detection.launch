@@ -5,7 +5,8 @@
     <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
         <arg name="domain_path"		value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/domain/domain.pddl" />
         <arg name="problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/problem/problem.pddl" />
-        <arg name="generated_problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/generated/generated.pddl" />
+        <arg name="autom_gen_problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/generated/generated.pddl" />
+        <arg name="data_path" default="$(find rosplan_planning_system)/test/turtlebot_demo/../" />
     </include>
 
 
