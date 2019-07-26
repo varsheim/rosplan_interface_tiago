@@ -22,7 +22,7 @@
     (sensor_type door_kitchen door_sensor)
     (sensor_type door_room door_sensor)
     (sensor_type lamp_room door_sensor)
-    (sensor_type dishwasher_kitchen rgbd)
+    (sensor_type dishwasher_kitchen door_sensor)
 
 
     (not_checking)

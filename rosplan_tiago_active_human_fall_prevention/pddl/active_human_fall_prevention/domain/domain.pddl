@@ -1,81 +1,74 @@
-(define (domain hazarddetection)
+(define (domain activehumanfallprevention)
 
 (:requirements :typing :adl :durative-actions :numeric-fluents)
 
-(:types hazard - linkable
-        robot - locatable
-        hazard-location robot-location - location
-        robot-sensor home-system-sensor - sensor)
+(:types linkable
+        robot human - locatable
+        human-location robot-location - location)
 
 (:predicates (at ?obj - locatable ?loc - location)
-             (checked_door ?hazard - hazard)
-             (checked_light ?hazard - hazard)
-             (checked_dishwasher ?hazard - hazard)
-             (linked ?hazard - linkable ?loc - location)
-             (sensor_type ?haz - hazard ?sen - sensor)
-             (checking)
-             (not_checking))
+             (linked_to_location ?lcbl - locatable ?loc - location)
+             (human_coming)
+             (not_human_coming))
 
 (:functions (is_robot_sensor ?sen - sensor))
 
 (:durative-action GO
-      :parameters (?obj - robot ?start - location ?destination - location)
-      :duration (= ?duration 30)
-      :condition (and
-            (at start (at ?obj ?start)))
-      :effect (and
-            (at end (at ?obj ?destination))
-            (at start (not (at ?obj ?start))))
+    :parameters (?obj - robot ?start - location ?destination - location)
+    :duration (= ?duration 30)
+    :condition (and
+        (over all (not_human_coming))
+        (at start (at ?obj ?start)))
+    :effect (and
+        (at end (at ?obj ?destination))
+        (at start (not (at ?obj ?start))))
 )
 
-(:durative-action CHECK_DOOR
+;return false when human is coming - to do that there should b
+;during this action there is new knowledge added to KB - every time some new this is detected
+
+(:durative-action GO_SCANNING
+    :parameters (?obj - robot ?start - location ?destination - location)
+    :duration (= ?duration 30)
+    :condition (and
+        (over all (not_human_coming))
+        (at start (at ?obj ?start)))
+    :effect (and
+        ;return that this area has been checked
+        (at end (at ?obj ?destination))
+        (at start (not (at ?obj ?start))))
+)
+
+;at the end of this action fact is added to KB that human is coming
+;then replanning should be executed (at the end of smach server
+;so it should be
+;stop dispatching -> [generate problem -> run planner -> run parser -> dispatch]
+;when human detected returns true (at end (is_human_coming))
+
+(:durative-action HUMAN_DETECTION
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
-      :condition
-            (and
-                (at start (not_checking))
-                (over all (sensor_type ?hazard ?sen))
-                (over all (or
-                            (at ?obj ?hazloc)
-                            (= (is_robot_sensor ?sen) 0)))
-                (over all (linked ?hazard ?hazloc))
+      :duration ( = ?duration 1000)
+      :condition (and
+            (over all (not_human_coming))
+            (over all (linked ?hazard ?hazloc)))
+      :effect (and
+            (at end (human_coming))
+            (at end (not (not_human_coming))))
+)
+
+;this should read from KB about hazardous items robot found and pass the info to the human after approach
+
+(:durative-action HUMAN_APPROACH
+      :parameters (?obj - robot ?humanloc - human-location ?human - human)
+      :duration ( = ?duration 30)
+      :condition (and
+            (at start (human_coming))
+            (over all (at ?obj ?humanloc))
+            (over all (linked ?human ?humanloc))
             )
       :effect (and
-            (at start (not (not_checking)))
-            (at end (not_checking))
-            (at end (checked_door ?hazard)))
-)
-
-(:durative-action CHECK_LIGHT
-      :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
-      :condition (and
-            (at start (not_checking))
-            (over all (sensor_type ?hazard ?sen))
-            (over all (or
-                        (at ?obj ?hazloc)
-                        (= (is_robot_sensor ?sen) 0)))
-            (over all (linked ?hazard ?hazloc)))
-      :effect (and
-            (at start (not (not_checking)))
-            (at end (not_checking))
-            (at end (checked_light ?hazard)))
-)
-
-(:durative-action CHECK_DISHWASHER
-      :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
-      :condition (and
-            (at start (not_checking))
-            (over all (sensor_type ?hazard ?sen))
-            (over all (or
-                        (at ?obj ?hazloc)
-                        (= (is_robot_sensor ?sen) 0)))
-            (over all (linked ?hazard ?hazloc)))
-      :effect (and
-            (at start (not (not_checking)))
-            (at end (not_checking))
-            (at end (checked_dishwasher ?hazard)))
+            (at end (human_informed ?human))
+            )
 )
 
 )
