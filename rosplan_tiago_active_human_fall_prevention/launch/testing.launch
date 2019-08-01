@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+<!-- arguments -->
+<arg name="domain_path"	default="$(find rosplan_tiago_active_human_fall_prevention)/pddl/active_human_fall_prevention/domain/domain.pddl" />
+<arg name="problem_path"	default="$(find rosplan_tiago_active_human_fall_prevention)/pddl/active_human_fall_prevention/problem/problem.pddl" />
+<arg name="autom_gen_problem_path"	value="$(find rosplan_tiago_active_human_fall_prevention)/pddl/active_human_fall_prevention/generated/generated.pddl" />
+<arg name="data_path" default="$(find rosplan_planning_system)/test/turtlebot_demo/../" />
+
+<!-- knowledge base -->
+<node name="rosplan_knowledge_base" pkg="rosplan_knowledge_base" type="knowledgeBase" respawn="false" output="screen">
+    <param name="domain_path" value="$(arg domain_path)" />
+    <param name="problem_path" value="$(arg problem_path)" />
+    <!-- conditional planning flags -->
+    <param name="use_unknowns" value="true" />
+</node>
+
+
+</launch>

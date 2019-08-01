@@ -29,12 +29,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 
 ## Generate actions in the 'action' folder
-#add_action_files(FILES Go.action Check.action)
+add_action_files(FILES GoScanning.action HumanApproachDetect.action HumanInteract.action)
 
 catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
-#generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
+generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 
 catkin_package(
 	LIBRARIES ${PROJECT_NAME}
@@ -61,18 +61,23 @@ include_directories(
 	${catkin_INCLUDE_DIRS}
 )
 
-#install(PROGRAMS
-#	nodes/check_server
-#	nodes/go_server
-#	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#	)
+install(PROGRAMS
+	nodes/go_scanning_server
+	nodes/human_approach_detect_server
+	nodes/human_interact_server
+	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+	)
 
-#add_executable(RPGo src/RPGo.cpp)
-#add_dependencies(RPGo ${catkin_EXPORTED_TARGETS})
-#
-#add_executable(RPCheck src/RPCheck.cpp)
-#add_dependencies(RPCheck ${catkin_EXPORTED_TARGETS})
+add_executable(RPGoScanning src/RPGoScanning.cpp)
+add_dependencies(RPGoScanning ${catkin_EXPORTED_TARGETS})
 
-## Specify libraries to link a library or executable target against
-#target_link_libraries(RPGo ${catkin_LIBRARIES})
-#target_link_libraries(RPCheck ${catkin_LIBRARIES})
+add_executable(RPHumanApproachDetect src/RPHumanApproachDetect.cpp)
+add_dependencies(RPHumanApproachDetect ${catkin_EXPORTED_TARGETS})
+
+add_executable(RPHumanInteract src/RPHumanInteract.cpp)
+add_dependencies(RPHumanInteract ${catkin_EXPORTED_TARGETS})
+
+# Specify libraries to link a library or executable target against
+target_link_libraries(RPGoScanning ${catkin_LIBRARIES})
+target_link_libraries(RPHumanApproachDetect ${catkin_LIBRARIES})
+target_link_libraries(RPHumanInteract ${catkin_LIBRARIES})

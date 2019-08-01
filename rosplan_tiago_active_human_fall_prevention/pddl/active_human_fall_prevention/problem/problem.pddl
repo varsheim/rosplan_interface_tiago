@@ -1,42 +1,30 @@
 (define (problem task)
-(:domain hazarddetection)
+(:domain activehumanfallprevention)
 (:objects
-    door_kitchen door_room lamp_room dishwasher_kitchen - hazard
+    luke - human
     rico - robot
     initial - robot-location
-    door_kitchen_location door_room_location lamp_room_location dishwasher_kitchen_location - hazard-location
-    lidar rgbd ultrasonic - robot-sensor
-    door_sensor window_sensor - home-system-sensor
+    luke_pose - human-location
+    wp0 wp1 wp2 wp3 wp4 wp5 wp6 - waypoint
 )
 
 (:init
     (at rico initial)
-    (not_checking)
+    (at luke luke_pose)
+    (not_human_coming)
+    (not (human_coming))
 
-    (linked lamp_room lamp_room_location)
-    (linked door_room door_room_location)
-    (linked door_kitchen door_kitchen_location)
-    (linked dishwasher_kitchen dishwasher_kitchen_location)
-
-    (sensor_type door_kitchen door_sensor)
-    (sensor_type door_room door_sensor)
-    (sensor_type lamp_room door_sensor)
-    (sensor_type dishwasher_kitchen door_sensor)
-
-    ; point which sensors are on robot's platform (1 or 0)
-    (= (is_robot_sensor lidar) 1)
-    (= (is_robot_sensor rgbd) 1)
-    (= (is_robot_sensor ultrasonic) 1)
-    (= (is_robot_sensor door_sensor) 0)
-    (= (is_robot_sensor window_sensor) 0)
-
+    (linked_to_location luke luke_pose)
 )
 
 (:goal (and
-    (checked_light lamp_room)
-    (checked_door door_kitchen)
-    (checked_door door_room)
-    (checked_dishwasher dishwasher_kitchen)
+    (scanned_area wp0 wp1)
+    (scanned_area wp1 wp2)
+    (scanned_area wp2 wp3)
+    (scanned_area wp3 wp4)
+    (scanned_area wp4 wp5)
+    (scanned_area wp5 wp6)
+    (human_detection_ongoing luke)
     )
 )
 
