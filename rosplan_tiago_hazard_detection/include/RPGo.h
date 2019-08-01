@@ -23,7 +23,7 @@ namespace KCL_rosplan {
     {
 
     private:
-        Client action_client{"go", true};
+        // Client action_client{"go", true};
 
         ros::ServiceClient service_client;
         std::string current_destination;

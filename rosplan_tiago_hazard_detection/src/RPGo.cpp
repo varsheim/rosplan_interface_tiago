@@ -37,26 +37,27 @@ namespace KCL_rosplan {
             return false;
         }
 
-        action_client.waitForServer();
-        rosplan_tiago_hazard_detection::GoGoal goal;
-
-        // Fill in goal here
-        goal.pose = srv.response.pose;
-        action_client.sendGoal(goal);
-        action_client.waitForResult(ros::Duration(30.0));
-
-
-        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-            // complete the action
-            ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
-
-            return true;
-        }
-        else {
-            ROS_INFO("CLIENT: GO: Current State: %s\n", action_client.getState().toString().c_str());
-
-            return false;
-        }
+//        action_client.waitForServer();
+//        rosplan_tiago_hazard_detection::GoGoal goal;
+//
+//        // Fill in goal here
+//        goal.pose = srv.response.pose;
+//        action_client.sendGoal(goal);
+//        action_client.waitForResult(ros::Duration(30.0));
+//
+//
+//        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+//            // complete the action
+//            ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
+//
+//            return true;
+//        }
+//        else {
+//            ROS_INFO("CLIENT: GO: Current State: %s\n", action_client.getState().toString().c_str());
+//
+//            return false;
+//        }
+        return true;
     }
 } // close namespace
 

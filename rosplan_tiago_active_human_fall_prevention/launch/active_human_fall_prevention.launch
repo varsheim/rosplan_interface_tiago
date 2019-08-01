@@ -18,18 +18,32 @@
     </node-->
 
     <!-- action clients -->
-    <!--node name="" pkg="rosplan_tiago_active_human_fall_prevention" type="" respawn="false" output="screen">
+    <node name="rosplan_interface_go_client" pkg="rosplan_tiago_hazard_detection" type="RPGo" respawn="false" output="screen">
         <param name="knowledge_base"		value="rosplan_knowledge_base" />
         <param name="pddl_action_name"		value="go" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
-    </node-->
+    </node>
 
-    <!--node name="" pkg="rosplan_tiago_active_human_fall_prevention" type="" respawn="false" output="screen">
+    <node name="rosplan_interface_go_scanning_client" pkg="rosplan_tiago_active_human_fall_prevention" type="RPGoScanning" respawn="false" output="screen">
         <param name="knowledge_base"		value="rosplan_knowledge_base" />
-        <param name="pddl_action_name"		value="check" />
+        <param name="pddl_action_name"		value="go_scanning" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
-    </node-->
+    </node>
+
+    <node name="rosplan_interface_human_approach_detect_client" pkg="rosplan_tiago_active_human_fall_prevention" type="RPHumanApproachDetect" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="human_approach_detect" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_human_interact_client" pkg="rosplan_tiago_active_human_fall_prevention" type="RPHumanInteract" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="human_interact" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
 
 </launch>

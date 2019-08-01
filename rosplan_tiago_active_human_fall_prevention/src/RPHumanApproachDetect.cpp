@@ -24,20 +24,22 @@ namespace KCL_rosplan {
         // Get the actual values by calling the service
 
         ROS_INFO(msg.get()->parameters.back().value.c_str());
+//
+//        action_client.waitForServer();
+//        rosplan_tiago_active_human_fall_prevention::HumanApproachDetectGoal goal;
+//
+//        // Fill in goal here
+//        goal.blind_goal = 500;
+//
+//        action_client.sendGoal(goal);
+//
+//        action_client.waitForResult(ros::Duration(10.0));
+//
+//        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+//
+//        }
 
-        action_client.waitForServer();
-        rosplan_tiago_active_human_fall_prevention::HumanApproachDetectGoal goal;
-
-        // Fill in goal here
-        goal.blind_goal = 500;
-
-        action_client.sendGoal(goal);
-
-        action_client.waitForResult(ros::Duration(10.0));
-
-        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-
-        }
+	    ros::Duration(3).sleep();
 
         // complete the action
         ROS_INFO("KCL: (%s) HUMANAPPROACHDETECT Action completing.\n", msg->name.c_str());
@@ -52,7 +54,7 @@ namespace KCL_rosplan {
 /*-------------*/
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "rosplan_go_action_client", ros::init_options::AnonymousName);
+    ros::init(argc, argv, "rosplan_human_approach_detect_action_client", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 
     // create action client here?

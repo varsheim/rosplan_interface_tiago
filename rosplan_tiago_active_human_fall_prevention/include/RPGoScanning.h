@@ -18,7 +18,7 @@ namespace KCL_rosplan {
     {
 
     private:
-        Client action_client{"go_scanning", true};
+        // Client action_client{"go_scanning", true};
     public:
 
         /* constructor */
