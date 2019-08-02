@@ -18,7 +18,7 @@ namespace KCL_rosplan {
     {
 
     private:
-        // Client action_client{"human_interact", true};
+        Client action_client{"human_interact", true};
     public:
 
         /* constructor */

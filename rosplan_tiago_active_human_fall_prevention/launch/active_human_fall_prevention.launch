@@ -11,11 +11,14 @@
 
 
     <!-- actionlib servers -->
-    <!--node name="" pkg="rosplan_tiago_active_human_fall_prevention" type="" respawn="false" output="screen">
-    </node-->
+    <node name="rosplan_interface_go_scanning_server" pkg="rosplan_tiago_active_human_fall_prevention" type="go_scanning_server" respawn="false" output="screen">
+    </node>
 
-    <!--node name="" pkg="rosplan_tiago_active_human_fall_prevention" type="" respawn="false" output="screen">
-    </node-->
+    <node name="rosplan_interface_human_approach_detect_server" pkg="rosplan_tiago_active_human_fall_prevention" type="human_approach_detect_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_human_interact_server" pkg="rosplan_tiago_active_human_fall_prevention" type="human_interact_server" respawn="false" output="screen">
+    </node>
 
     <!-- action clients -->
     <node name="rosplan_interface_go_client" pkg="rosplan_tiago_hazard_detection" type="RPGo" respawn="false" output="screen">
@@ -46,4 +49,8 @@
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>
 
+
+    <!-- params servers -->
+    <node name="rosplan_interface_location_name_server" pkg="rosplan_tiago_params" type="location_name_server" respawn="false" output="screen">
+    </node>
 </launch>

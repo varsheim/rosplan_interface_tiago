@@ -1,12 +1,13 @@
 #!/usr/bin/env python
+
 import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_hazard_detection.msg import CheckAction
-from rosplan_tiago_hazard_detection.msg import CheckActionGoal
-from rosplan_tiago_hazard_detection.msg import CheckActionFeedback
-from rosplan_tiago_hazard_detection.msg import CheckActionResult
+from rosplan_tiago_active_human_fall_prevention.msg import GoScanningAction
+from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionGoal
+from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionFeedback
+from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionResult
 
 
 class Initialize(smach.State):
@@ -15,65 +16,40 @@ class Initialize(smach.State):
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
                              output_keys=['init_feedback',
+                                          'init_item',
                                           'init_params'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
-        rospy.sleep(2)
-        return 'ok'
+        # now the server receives only pose
+        goal = userdata.init_goal.blind_goal
 
+        userdata.init_item = goal
 
-class GetData(smach.State):
-    def __init__(self):
-        smach.State.__init__(self,
-                             outcomes=['ok', 'skipComputing', 'preemption', 'error'],
-                             input_keys=['gdata_params'],
-                             output_keys=['gdata_feedback',
-                                          'gdata_data',
-                                          'gdata_params'])
-
-    def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
-
-        # robot movement here
         rospy.sleep(1)
         return 'ok'
 
 
-class ComputeData(smach.State):
+class Dummy(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['cdata_data',
-                                         'cdata_params'],
-                             output_keys=['cdata_feedback',
-                                          'cdata_output',
-                                          'cdata_params'])
+                             input_keys=['dummy_goal',
+                                         'dummy_params'],
+                             output_keys=['dummy_feedback',
+                                          'dummy_info'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
-        # robot approach check may be put here, some distances calculated
-        rospy.sleep(1)
-        return 'ok'
+        # robot movement here - using Tiago move_base
+        goal = userdata.dummy_goal
 
+        print goal
 
-class MakeDecision(smach.State):
-    def __init__(self):
-        smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['mdec_input',
-                                         'mdec_params'],
-                             output_keys=['mdec_feedback',
-                                          'mdec_decision'])
-
-    def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
-
-        # robot movement here
-        rospy.sleep(1)
+        rospy.sleep(3)
         return 'ok'
 
 
@@ -81,7 +57,7 @@ class Finalize(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_decision'],
+                             input_keys=['final_info'],
                              output_keys=['final_feedback',
                                           'final_result'])
 
@@ -89,12 +65,12 @@ class Finalize(smach.State):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
         # prepare some feedback & result
-        action_feedback = CheckActionFeedback()
-        action_feedback.feedback.percent_complete = 80
+        action_feedback = GoScanningActionFeedback()
+        action_feedback.feedback.percent_complete = 8
         userdata.final_feedback = action_feedback.feedback
 
-        action_result = CheckActionResult()
-        action_result.result.is_undocked = 8
+        action_result = GoScanningActionResult()
+        action_result.result.is_undocked = 1
         userdata.final_result = action_result.result
 
         # robot approach check may be put here, some distances calculated
@@ -102,12 +78,12 @@ class Finalize(smach.State):
         return 'ok'
 
 
-class CheckServer(smach.StateMachine):
+class GoScanningServer(smach.StateMachine):
     def __init__(self):
         smach.StateMachine.__init__(self,
                                     outcomes=['PREEMPTED',
                                               'FAILED',
-                                              'CHECKED'],
+                                              'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
                                     output_keys=['sm_feedback',
                                                  'sm_result'])
@@ -116,69 +92,50 @@ class CheckServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'GetData',
+                                   transitions={'ok': 'Dummy',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_feedback': 'sm_feedback',
+                                              'init_item': 'sm_goal',
                                               'init_params': 'sm_params'})
 
-            smach.StateMachine.add('GetData',
-                                   GetData(),
-                                   transitions={'ok': 'ComputeData',
-                                                'skipComputing': 'MakeDecision',
-                                                'preemption': 'PREEMPTED',
-                                                'error': 'FAILED'},
-                                   remapping={'gdata_params': 'sm_params',
-                                              'gdata_feedback': 'sm_feedback',
-                                              'gdata_data': 'sm_data'})
-
-            smach.StateMachine.add('ComputeData',
-                                   ComputeData(),
-                                   transitions={'ok': 'MakeDecision',
-                                                'preemption': 'PREEMPTED',
-                                                'error': 'FAILED'},
-                                   remapping={'cdata_data': 'sm_data',
-                                              'cdata_params': 'sm_params',
-                                              'cdata_feedback': 'sm_feedback',
-                                              'cdata_output': 'sm_output'})
-
-            smach.StateMachine.add('MakeDecision',
-                                   MakeDecision(),
+            smach.StateMachine.add('Dummy',
+                                   Dummy(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'mdec_input': 'sm_input',
-                                              'mdec_params': 'sm_params',
-                                              'mdec_feedback': 'sm_feedback',
-                                              'mdec_decision': 'sm_decision'})
+                                   remapping={'dummy_goal': 'sm_goal',
+                                              'dummy_params': 'sm_params',
+                                              'dummy_feedback': 'sm_feedback',
+                                              'dummy_info': 'sm_info'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
-                                   transitions={'ok': 'CHECKED',
-                                                'preemption': 'PREEMPTED',
-                                                'error': 'FAILED'},
-                                   remapping={'final_decision': 'sm_decision',
+                                   transitions={'preemption': 'PREEMPTED',
+                                                'error': 'FAILED',
+                                                'ok': 'SM_SUCCEEDED'},
+                                   remapping={'final_info': 'sm_info',
                                               'final_feedback': 'sm_feedback',
                                               'final_result': 'sm_result'})
 
 
 def main():
-    rospy.init_node('check_server')
+    rospy.init_node('go_scanning_server')
 
     # Construct state machine
-    sm = CheckServer()
+    sm = GoScanningServer()
 
     # # Smach viewer
-    sis = smach_ros.IntrospectionServer('check_server', sm, '/SM_CHECK_SERVER')
+    sis = smach_ros.IntrospectionServer('go_scanning_server', sm, '/SM_GO_SCANNING_SERVER')
     sis.start()
 
     # Construct action server wrapper
     asw = smach_ros.ActionServerWrapper(
-        server_name='check',
-        action_spec=CheckAction,
+        server_name='go_scanning',
+        action_spec=GoScanningAction,
         wrapped_container=sm,
-        succeeded_outcomes=['CHECKED'],
+        succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
         goal_key='sm_goal',

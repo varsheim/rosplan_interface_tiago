@@ -21,7 +21,7 @@ namespace KCL_rosplan {
     {
 
     private:
-        // Client action_client{"human_approach_detect", true};
+        Client action_client{"human_approach_detect", true};
 
         ros::ServiceClient service_client;
         std::string current_destination;

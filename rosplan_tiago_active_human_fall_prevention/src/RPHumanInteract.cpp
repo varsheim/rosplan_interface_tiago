@@ -26,21 +26,20 @@ namespace KCL_rosplan {
 
         ROS_INFO(msg.get()->parameters.back().value.c_str());
 
-//        action_client.waitForServer();
-//        rosplan_tiago_active_human_fall_prevention::HumanInteractGoal goal;
-//
-//        // Fill in goal here
-//        goal.blind_goal = 500;
-//
-//        action_client.sendGoal(goal);
-//
-//        action_client.waitForResult(ros::Duration(10.0));
-//
-//        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-//
-//        }
+        action_client.waitForServer();
+        rosplan_tiago_active_human_fall_prevention::HumanInteractGoal goal;
 
-	    ros::Duration(3).sleep();
+        // Fill in goal here
+        goal.blind_goal = 500;
+
+        action_client.sendGoal(goal);
+
+        action_client.waitForResult(ros::Duration(10.0));
+
+        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+
+        }
+
 
         // complete the action
         ROS_INFO("KCL: (%s) HUMANINTERACT Action completing.\n", msg->name.c_str());
