@@ -1,7 +1,7 @@
 (define (problem task)
 (:domain activehumanfallprevention)
 (:objects
-    luke - human
+    luke john - human
     rico - robot
     initial - robot-location
     luke_pose - human-location

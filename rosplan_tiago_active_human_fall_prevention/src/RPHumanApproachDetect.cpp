@@ -33,7 +33,7 @@ namespace KCL_rosplan {
 
         action_client.sendGoal(goal);
 
-        action_client.waitForResult(ros::Duration(10.0));
+        action_client.waitForResult(ros::Duration(60.0));
 
         if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
 
