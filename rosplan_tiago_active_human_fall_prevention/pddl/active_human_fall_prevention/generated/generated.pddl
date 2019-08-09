@@ -9,15 +9,14 @@
 )
 (:init
     (at luke luke_pose)
+    (at rico initial)
 
     (linked_to_location luke luke_pose)
 
 
-    (not (human_coming))
-    (human_coming luke)
+    (human_coming)
 
-    (not_human_coming)
-    (not (not_human_coming luke))
+    (not (not_human_coming))
 
     (human_detection_ongoing luke)
 
