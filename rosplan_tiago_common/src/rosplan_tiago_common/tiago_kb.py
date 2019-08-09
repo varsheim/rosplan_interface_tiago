@@ -38,26 +38,29 @@ class TiagoKB:
         items = KnowledgeUpdateServiceArrayRequest()
         temp_item_update_type = []
 
-        temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
-        temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
-        temp_item_knowledge.attribute_name = attribute
-        temp_item_knowledge.is_negative = negation
-
         # handle attributes without keys
         if len(list_key_value) > 0:
             for dict in list_key_value:
+                if add == True:
+                    temp_item_update_type.append(self.knowledge_types_dict[k_type_add])
+                else:
+                    temp_item_update_type.append(self.knowledge_types_dict[k_type_remove])
 
-                # clear knowledge item values before appending
-                temp_item_knowledge.values = []
+                # set new knowledge item values before appending
+                temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
+                temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
+                temp_item_knowledge.attribute_name = attribute
+                temp_item_knowledge.is_negative = negation
                 for key in keys:
                     temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, dict[key]))
 
                 items.knowledge.append(temp_item_knowledge)
-                print items.knowledge
-                print "\n\n\n"
                 items.update_type = temp_item_update_type
-
         else:
+            temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
+            temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
+            temp_item_knowledge.attribute_name = attribute
+            temp_item_knowledge.is_negative = negation
             if add == True:
                 temp_item_update_type.append(self.knowledge_types_dict[k_type_add])
             else:

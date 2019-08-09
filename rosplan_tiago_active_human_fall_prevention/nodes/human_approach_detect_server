@@ -13,6 +13,7 @@ from rosplan_knowledge_msgs.msg import *
 from rosplan_dispatch_msgs.srv import *
 from rosplan_dispatch_msgs.msg import *
 from std_srvs.srv import *
+from rosplan_tiago_common.tiago_kb import TiagoKB
 
 
 class Initialize(smach.State):
@@ -44,7 +45,8 @@ class Dummy(smach.State):
                              input_keys=['dummy_goal',
                                          'dummy_params'],
                              output_keys=['dummy_feedback',
-                                          'dummy_info'])
+                                          'dummy_info',
+                                          'dummy_result'])
 
     def rosplan_problem_generation(self):
         print "Waiting for service"
@@ -96,11 +98,11 @@ class Dummy(smach.State):
         rospy.wait_for_service('rosplan_plan_dispatcher/dispatch_plan')
 
         print "Preparing the message"
-        request_dispatcher = EmptyRequest()
+        request_dispatcher = DispatchServiceRequest()
 
         try:
             print "Calling Dispatch Plan"
-            proxy = rospy.ServiceProxy('rosplan_plan_dispatcher/dispatch_plan', Empty)
+            proxy = rospy.ServiceProxy('rosplan_plan_dispatcher/dispatch_plan', DispatchService)
             update_response = proxy(request_dispatcher)
             print "Response is: ", update_response
         except rospy.ServiceException, e:
@@ -116,100 +118,10 @@ class Dummy(smach.State):
         try:
             print "Calling Cancel Dispatch Plan"
             proxy = rospy.ServiceProxy('rosplan_plan_dispatcher/cancel_dispatch', Empty)
-            print "czy tu sie wypierdala?"
             update_response = proxy(request_dispatcher)
             print "Response is: ", update_response
         except rospy.ServiceException, e:
             print "Service call failed: %s"%e
-
-    def kb_add_remove_human(self, name, location, add=True):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_knowledge_base/update')
-
-        print "Preparing the message"
-        item = KnowledgeUpdateServiceRequest()
-        if add == True:
-            item.update_type = KnowledgeUpdateServiceRequest.ADD_KNOWLEDGE
-        else:
-            item.update_type = KnowledgeUpdateServiceRequest.REMOVE_KNOWLEDGE
-
-        item.knowledge.knowledge_type = KnowledgeItem.FACT
-        item.knowledge.attribute_name = "at"
-        item.knowledge.values.append(diagnostic_msgs.msg.KeyValue("obj", name))
-        item.knowledge.values.append(diagnostic_msgs.msg.KeyValue("loc", location))
-
-        try:
-            print "Calling Service"
-            update_proxy = rospy.ServiceProxy('rosplan_knowledge_base/update', KnowledgeUpdateService)
-            update_response = update_proxy(item)
-            print "Response is: ", update_response.success
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def kb_add_remove_goals(self, attribute, keys, list_key_value, add=True, negation=False):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_knowledge_base/update_array')
-
-        print "Preparing the message"
-        items = KnowledgeUpdateServiceArrayRequest()
-        temp_item_update_type = []
-
-        for dict in list_key_value:
-            if add == True:
-                temp_item_update_type.append(KnowledgeUpdateServiceArrayRequest.ADD_GOAL)
-            else:
-                temp_item_update_type.append(KnowledgeUpdateServiceArrayRequest.REMOVE_GOAL)
-
-            temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
-            temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
-            temp_item_knowledge.attribute_name = attribute
-            temp_item_knowledge.is_negative = negation
-            for key in keys:
-                temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, dict[key]))
-
-            items.knowledge.append(temp_item_knowledge)
-            items.update_type = temp_item_update_type
-
-        try:
-            print "Calling Service"
-            update_proxy = rospy.ServiceProxy('rosplan_knowledge_base/update_array', KnowledgeUpdateServiceArray)
-            update_response = update_proxy(items)
-            print "Response is: ", update_response.success
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def kb_add_remove_knowledge(self, attribute, keys, list_key_value, add=True, negation=False):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_knowledge_base/update_array')
-
-        print "Preparing the message"
-        items = KnowledgeUpdateServiceArrayRequest()
-        temp_item_update_type = []
-
-        for dict in list_key_value:
-            if add == True:
-                temp_item_update_type.append(KnowledgeUpdateServiceArrayRequest.ADD_KNOWLEDGE)
-            else:
-                temp_item_update_type.append(KnowledgeUpdateServiceArrayRequest.REMOVE_KNOWLEDGE)
-
-            temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
-            temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
-            temp_item_knowledge.attribute_name = attribute
-            temp_item_knowledge.is_negative = negation
-            for key in keys:
-                temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, dict[key]))
-
-            items.knowledge.append(temp_item_knowledge)
-            items.update_type = temp_item_update_type
-
-        try:
-            print "Calling Service"
-            update_proxy = rospy.ServiceProxy('rosplan_knowledge_base/update_array', KnowledgeUpdateServiceArray)
-            update_response = update_proxy(items)
-            print "Response is: ", update_response.success
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
@@ -220,6 +132,9 @@ class Dummy(smach.State):
 
         #rospy.sleep(10)
 
+        tiago_kb = TiagoKB()
+
+
         # remove scanning area goals
         key_value = []
         for i in range(6):
@@ -229,31 +144,51 @@ class Dummy(smach.State):
             key_value.append(temp_dict)
 
         keys = ["loc_from", "loc_to"]
-        self.kb_add_remove_goals("scanned_area", keys, key_value, add=False)
+        tiago_kb.add_remove_goals("scanned_area", keys, key_value, add=False)
 
         # remove human_detection_ongoing
-        self.kb_add_remove_goals("human_detection_ongoing", ["human"], [{"human": "luke"}], add=False)
+        tiago_kb.add_remove_goals("human_detection_ongoing", ["human"], [{"human": "luke"}], add=False)
 
         # add human_informed goal
-        self.kb_add_remove_goals("human_informed", ["human"], [{"human": "luke"}], add=True)
+        tiago_kb.add_remove_goals("human_informed", ["human"], [{"human": "luke"}], add=True)
+
+        # add robot at initial position
+        tiago_kb.add_remove_knowledge("at", ["obj", "loc"], [{"obj": "rico", "loc": "initial"}], add=True)
 
         # handle "human_coming" fact
-        self.kb_add_remove_knowledge("human_coming", ["human"], [{"human": "luke"}], add=True)
-        self.kb_add_remove_knowledge("not_human_coming", ["human"], [{"human": "luke"}], add=True, negation=True)
-        self.kb_add_remove_knowledge("human_coming", ["human"], [{"human": "luke"}], add=False, negation=True)
-        self.kb_add_remove_knowledge("not_human_coming", ["human"], [{"human": "luke"}], add=False)
-        # TODO HERE IS ERROR ^^^ Should be without "luke" (check domain)
-
+        tiago_kb.add_remove_knowledge("human_coming", [], [], add=True)
+        tiago_kb.add_remove_knowledge("not_human_coming", [], [], add=True, negation=True)
+        tiago_kb.add_remove_knowledge("human_coming", [], [], add=False, negation=True)
+        tiago_kb.add_remove_knowledge("not_human_coming", [], [], add=False)
 
         self.rosplan_stop_dispatch()
+
+        # wait for actions to be completed
+        rospy.sleep(5)
+
         self.rosplan_problem_generation()
+
+        rospy.sleep(1)
         self.rosplan_planning()
+
+        rospy.sleep(1)
         self.rosplan_parse_plan()
+
+        rospy.sleep(1)
         self.rosplan_dispatch_plan()
 
         # now exit gently by returning smach ending code
-        rospy.sleep(3)
-        return 'ok'
+        # rospy.sleep(3)
+        # prepare some feedback & result
+        action_feedback = HumanApproachDetectActionFeedback()
+        action_feedback.feedback.percent_complete = 8
+        userdata.dummy_feedback = action_feedback.feedback
+
+        action_result = HumanApproachDetectActionResult()
+        action_result.result.is_undocked = 1
+        userdata.dummy_result = action_result.result
+
+        return 'preemption'
 
 
 class Finalize(smach.State):
@@ -311,7 +246,8 @@ class HumanApproachDetectServer(smach.StateMachine):
                                    remapping={'dummy_goal': 'sm_goal',
                                               'dummy_params': 'sm_params',
                                               'dummy_feedback': 'sm_feedback',
-                                              'dummy_info': 'sm_info'})
+                                              'dummy_info': 'sm_info',
+                                              'dummy_result': 'sm_result'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
