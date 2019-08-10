@@ -3,6 +3,7 @@
 import rospy
 import smach
 import smach_ros
+from collections import OrderedDict
 
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAction
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionGoal
@@ -136,30 +137,31 @@ class Dummy(smach.State):
 
 
         # remove scanning area goals
+        # dictionary order is IMPORTANT - knowledge values are based on this so i use OrderedDict
         key_value = []
         for i in range(6):
-            temp_dict = dict()
-            temp_dict.update({"loc_from": "wp{}".format(i)})
-            temp_dict.update({"loc_to": "wp{}".format(i+1)})
+            temp_dict = OrderedDict([("loc_from", "wp{}".format(i)), ("loc_to", "wp{}".format(i+1))])
             key_value.append(temp_dict)
 
-        keys = ["loc_from", "loc_to"]
-        tiago_kb.add_remove_goals("scanned_area", keys, key_value, add=False)
+        tiago_kb.add_remove_goals("scanned_area", key_value, should_add=False)
 
         # remove human_detection_ongoing
-        tiago_kb.add_remove_goals("human_detection_ongoing", ["human"], [{"human": "luke"}], add=False)
+        temp_ordered_dict = OrderedDict([("human", "luke")])
+        tiago_kb.add_remove_goals("human_detection_ongoing", [temp_ordered_dict], should_add=False)
 
         # add human_informed goal
-        tiago_kb.add_remove_goals("human_informed", ["human"], [{"human": "luke"}], add=True)
+        temp_ordered_dict = OrderedDict([("human", "luke")])
+        tiago_kb.add_remove_goals("human_informed", [temp_ordered_dict], should_add=True)
 
         # add robot at initial position
-        tiago_kb.add_remove_knowledge("at", ["obj", "loc"], [{"obj": "rico", "loc": "initial"}], add=True)
+        temp_ordered_dict = OrderedDict([("obj", "rico"), ("loc", "initial")])
+        tiago_kb.add_remove_knowledge("at", [temp_ordered_dict], should_add=True)
 
         # handle "human_coming" fact
-        tiago_kb.add_remove_knowledge("human_coming", [], [], add=True)
-        tiago_kb.add_remove_knowledge("not_human_coming", [], [], add=True, negation=True)
-        tiago_kb.add_remove_knowledge("human_coming", [], [], add=False, negation=True)
-        tiago_kb.add_remove_knowledge("not_human_coming", [], [], add=False)
+        tiago_kb.add_remove_knowledge("human_coming", [], should_add=True)
+        tiago_kb.add_remove_knowledge("not_human_coming", [], should_add=True, is_negation=True)
+        tiago_kb.add_remove_knowledge("human_coming", [], should_add=False, is_negation=True)
+        tiago_kb.add_remove_knowledge("not_human_coming", [], should_add=False)
 
         self.rosplan_stop_dispatch()
 

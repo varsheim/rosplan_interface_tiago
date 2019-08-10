@@ -1,4 +1,5 @@
 import rospy
+from collections import OrderedDict
 
 from rosplan_knowledge_msgs.srv import *
 from rosplan_knowledge_msgs.msg import *
@@ -23,52 +24,40 @@ class TiagoKB:
         self.update_service_name = update_service_name
         self.update_array_service_name = update_array_service_name
 
-    def __add_remove_item(self, attribute, keys, list_key_value, add, negation, k_type):
-        if k_type in self.knowledge_types:
-            k_type_add = "ADD_{}".format(k_type)
-            k_type_remove = "REMOVE_{}".format(k_type)
-        else:
+    def __add_remove_item(self, attribute, values, should_add, is_negation, knowledge_type):
+        if knowledge_type not in self.knowledge_types:
             print "TIAGO_KB: Wrong knowledge type provided"
             return -1
+        k_type_add = "ADD_" + knowledge_type
+        k_type_remove = "REMOVE_" + knowledge_type
 
-        print "TIAGO_KB: Waiting for service {}".format(self.update_array_service_name)
+        print "TIAGO_KB: Waiting for service " + self.update_array_service_name
         rospy.wait_for_service(self.update_array_service_name)
 
         print "TIAGO_KB: Preparing the message"
         items = KnowledgeUpdateServiceArrayRequest()
+
         temp_item_update_type = []
-
-        # handle attributes without keys
-        if len(list_key_value) > 0:
-            for dict in list_key_value:
-                if add == True:
-                    temp_item_update_type.append(self.knowledge_types_dict[k_type_add])
-                else:
-                    temp_item_update_type.append(self.knowledge_types_dict[k_type_remove])
-
-                # set new knowledge item values before appending
-                temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
-                temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
-                temp_item_knowledge.attribute_name = attribute
-                temp_item_knowledge.is_negative = negation
-                for key in keys:
-                    temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, dict[key]))
-
-                items.knowledge.append(temp_item_knowledge)
-                items.update_type = temp_item_update_type
-        else:
-            if add == True:
-                temp_item_update_type.append(self.knowledge_types_dict[k_type_add])
-            else:
-                temp_item_update_type.append(self.knowledge_types_dict[k_type_remove])
-
+        for i in xrange(max(1, len(values))):
+            # set new knowledge item values before appending
             temp_item_knowledge = KnowledgeUpdateServiceRequest().knowledge
             temp_item_knowledge.knowledge_type = KnowledgeItem.FACT
             temp_item_knowledge.attribute_name = attribute
-            temp_item_knowledge.is_negative = negation
+            temp_item_knowledge.is_negative = is_negation
+            if len(values) > 0:
+                value = values[i]
+                print value
+                for key, value in value.iteritems():
+                    temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, value))
 
+            print temp_item_knowledge
+            print "\n\n"
             items.knowledge.append(temp_item_knowledge)
-            items.update_type = temp_item_update_type
+            temp_item_update_type.append(self.knowledge_types_dict[k_type_add if should_add else k_type_remove])
+
+        # print items.knowledge
+        items.update_type = temp_item_update_type
+        print items
 
         try:
             print "TIAGO_KB: Calling Service"
@@ -78,10 +67,10 @@ class TiagoKB:
         except rospy.ServiceException, e:
             print "TIAGO_KB: Service call failed: %s"%e
 
-    def add_remove_knowledge(self, attribute, keys, list_key_value, add=True, negation=False):
+    def add_remove_knowledge(self, attribute, values, should_add=True, is_negation=False):
         knowledge_type = 'KNOWLEDGE'
-        self.__add_remove_item(attribute, keys, list_key_value, add, negation, knowledge_type)
+        self.__add_remove_item(attribute, values, should_add, is_negation, knowledge_type)
 
-    def add_remove_goals(self, attribute, keys, list_key_value, add=True, negation=False):
+    def add_remove_goals(self, attribute, values, should_add=True, is_negation=False):
         knowledge_type = 'GOAL'
-        self.__add_remove_item(attribute, keys, list_key_value, add, negation, knowledge_type)
+        self.__add_remove_item(attribute, values, should_add, is_negation, knowledge_type)
