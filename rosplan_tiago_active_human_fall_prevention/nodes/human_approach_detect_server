@@ -6,15 +6,11 @@ import smach_ros
 from collections import OrderedDict
 
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAction
-from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionGoal
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionFeedback
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionResult
-from rosplan_knowledge_msgs.srv import *
-from rosplan_knowledge_msgs.msg import *
-from rosplan_dispatch_msgs.srv import *
-from rosplan_dispatch_msgs.msg import *
-from std_srvs.srv import *
+
 from rosplan_tiago_common.tiago_kb import TiagoKB
+from rosplan_tiago_common.rosplan_control import ROSPlanControl
 
 
 class Initialize(smach.State):
@@ -49,81 +45,6 @@ class Dummy(smach.State):
                                           'dummy_info',
                                           'dummy_result'])
 
-    def rosplan_problem_generation(self):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_problem_interface/problem_generation_server')
-
-        print "Preparing the message"
-        request_problem = EmptyRequest()
-
-        try:
-            print "Calling Problem Generation Service"
-            proxy = rospy.ServiceProxy('rosplan_problem_interface/problem_generation_server', Empty)
-            update_response = proxy(request_problem)
-            print "Response is: ", update_response
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def rosplan_planning(self):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_planner_interface/planning_server')
-
-        print "Preparing the message"
-        request_planner = EmptyRequest()
-
-        try:
-            print "Calling Planning Service"
-            proxy = rospy.ServiceProxy('rosplan_planner_interface/planning_server', Empty)
-            update_response = proxy(request_planner)
-            print "Response is: ", update_response
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def rosplan_parse_plan(self):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_parsing_interface/parse_plan')
-
-        print "Preparing the message"
-        request_parser = EmptyRequest()
-
-        try:
-            print "Calling Parse Plan"
-            proxy = rospy.ServiceProxy('rosplan_parsing_interface/parse_plan', Empty)
-            update_response = proxy(request_parser)
-            print "Response is: ", update_response
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def rosplan_dispatch_plan(self):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_plan_dispatcher/dispatch_plan')
-
-        print "Preparing the message"
-        request_dispatcher = DispatchServiceRequest()
-
-        try:
-            print "Calling Dispatch Plan"
-            proxy = rospy.ServiceProxy('rosplan_plan_dispatcher/dispatch_plan', DispatchService)
-            update_response = proxy(request_dispatcher)
-            print "Response is: ", update_response
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
-    def rosplan_stop_dispatch(self):
-        print "Waiting for service"
-        rospy.wait_for_service('rosplan_plan_dispatcher/cancel_dispatch')
-
-        print "Preparing the message"
-        request_dispatcher = EmptyRequest()
-
-        try:
-            print "Calling Cancel Dispatch Plan"
-            proxy = rospy.ServiceProxy('rosplan_plan_dispatcher/cancel_dispatch', Empty)
-            update_response = proxy(request_dispatcher)
-            print "Response is: ", update_response
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
-
     def execute(self, userdata):
         rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
 
@@ -131,10 +52,8 @@ class Dummy(smach.State):
         goal = userdata.dummy_goal
         print goal
 
-        #rospy.sleep(10)
-
         tiago_kb = TiagoKB()
-
+        rosplan_control = ROSPlanControl()
 
         # remove scanning area goals
         # dictionary order is IMPORTANT - knowledge values are based on this so i use OrderedDict
@@ -163,24 +82,11 @@ class Dummy(smach.State):
         tiago_kb.add_remove_knowledge("human_coming", [], should_add=False, is_negation=True)
         tiago_kb.add_remove_knowledge("not_human_coming", [], should_add=False)
 
-        self.rosplan_stop_dispatch()
+        rospy.sleep(10)
 
-        # wait for actions to be completed
-        rospy.sleep(5)
+        # rosplan master-blaster here
+        rosplan_control.replan_immediately_routine()
 
-        self.rosplan_problem_generation()
-
-        rospy.sleep(1)
-        self.rosplan_planning()
-
-        rospy.sleep(1)
-        self.rosplan_parse_plan()
-
-        rospy.sleep(1)
-        self.rosplan_dispatch_plan()
-
-        # now exit gently by returning smach ending code
-        # rospy.sleep(3)
         # prepare some feedback & result
         action_feedback = HumanApproachDetectActionFeedback()
         action_feedback.feedback.percent_complete = 8
@@ -190,6 +96,7 @@ class Dummy(smach.State):
         action_result.result.is_undocked = 1
         userdata.dummy_result = action_result.result
 
+        # now exit gently by returning smach ending code
         return 'preemption'
 
 
