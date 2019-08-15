@@ -2,17 +2,13 @@ import rospy
 
 from rosplan_dispatch_msgs.srv import *
 from std_srvs.srv import *
+from rosplan_tiago_common.msg import ROSPlanService
 
 
-class ROSPlanControl:
-    srv_class_request_dict = {
-        Empty: EmptyRequest(),
-        DispatchService: DispatchServiceRequest()
-    }
-
-    srv_class_response_dict = {
-        Empty: EmptyResponse(),
-        DispatchService: DispatchServiceResponse()
+class ROSPlanControlClient:
+    srv_class_string_dict = {
+        Empty: 'Empty',
+        DispatchService: 'DispatchService'
     }
 
     def __init__(self,
@@ -28,23 +24,22 @@ class ROSPlanControl:
         self.dispatch_service_name = dispatch_service_name
         self.stop_dispatch_service_name = stop_dispatch_service_name
 
+        # initialize publisher for setting services
+        self.pub = rospy.Publisher("rosplan_sys_control/services", ROSPlanService, queue_size=10)
+        while self.pub.get_num_connections() == 0:
+            pass
+
     def __call_service(self, srv_name, srv_class, delay_after_call_ms):
-        class_name = self.__class__.__name__
-        rospy.loginfo('{}: Waiting for service: {}'.format(class_name, srv_name))
-        rospy.wait_for_service(srv_name)
+        new_msg = ROSPlanService()
+        new_msg.service_name = srv_name
+        new_msg.service_class = self.srv_class_string_dict[srv_class]
+        node_name = "(" + rospy.get_name() + ")"
 
-        rospy.loginfo('{}: Preparing the message'.format(class_name))
-        request = self.srv_class_request_dict[srv_class]
+        rospy.loginfo("{} Publishing message to call service ({}).".format(node_name, srv_name))
+        self.pub.publish(new_msg)
 
-        try:
-            rospy.loginfo('{}: Calling Planning Service'.format(class_name))
-            proxy = rospy.ServiceProxy(srv_name, srv_class)
-            update_response = proxy(request)
-            rospy.loginfo('{}: Response is: '.format(class_name, update_response))
-        except rospy.ServiceException, e:
-            rospy.loginfo('{}: Service call failed: {}'.format(class_name, e))
-
-        rospy.sleep(rospy.Duration(nsecs=delay_after_call_ms * 1000))
+        rospy.loginfo("{} Sleeping for {}ms.".format(node_name, delay_after_call_ms))
+        rospy.sleep(rospy.Duration(nsecs=delay_after_call_ms * 1000000))
 
     def generate_problem(self):
         delay_after_ms = 1000

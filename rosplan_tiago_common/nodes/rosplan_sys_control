@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+import rospy
+from rosplan_tiago_common.msg import ROSPlanService
+from std_srvs.srv import *
+from rosplan_dispatch_msgs.srv import *
+
+
+class ROSPlanSysControlServer:
+    srv_str_class_dict = {
+        'Empty': Empty,
+        'DispatchService': DispatchService
+    }
+
+    srv_class_request_dict = {
+        Empty: EmptyRequest(),
+        DispatchService: DispatchServiceRequest()
+    }
+
+    srv_class_response_dict = {
+        Empty: EmptyResponse(),
+        DispatchService: DispatchServiceResponse()
+    }
+
+    def __init__(self):
+        rospy.Subscriber("rosplan_sys_control/services", ROSPlanService, self.callback, queue_size=10)
+
+    def callback(self, msg):
+        # data should be data.service_name & data.service_class
+        node_name = "(" + rospy.get_name() + ")"
+        srv_name = msg.service_name
+        srv_class = self.srv_str_class_dict[msg.service_class]
+
+        rospy.loginfo('{} Waiting for service: {}'.format(node_name, srv_name))
+        rospy.wait_for_service(srv_name)
+
+        rospy.loginfo('{} Preparing the message'.format(node_name))
+        request = self.srv_class_request_dict[srv_class]
+
+        try:
+            rospy.loginfo('{} Calling service {}'.format(node_name, srv_name))
+            proxy = rospy.ServiceProxy(srv_name, srv_class)
+            response = proxy(request)
+            if type(response) == EmptyResponse:
+                rospy.loginfo('{} Response is empty'.format(node_name))
+            else:
+                rospy.loginfo('{} Response is:\n{}'.format(node_name, response))
+        except rospy.ServiceException, e:
+            rospy.loginfo('{} Service call failed: {}'.format(node_name, e))
+
+
+if __name__ == '__main__':
+    rospy.init_node('rosplan_service_control_server')
+    ROSPlanSysControlServer()
+    rospy.spin()
