@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import rospy
+from geometry_msgs.msg import PoseStamped
+from rospy_message_converter import message_converter
+import yaml
+
+
+class PoseSaver:
+    def __init__(self):
+        rospy.Subscriber("move_base_simple/goal", PoseStamped, self.callback, queue_size=1)
+
+    def callback(self, msg):
+        # convert msg to dictionary
+        dictionary = message_converter.convert_ros_message_to_dictionary(msg)
+        # get only pose data
+        dictionary = dictionary['pose']  # TODO check if that works!
+
+        # here parse the goal to yaml file
+        with open('result.yml', 'r') as yaml_file:
+            cur_yaml = yaml.safe_load(yaml_file)
+            yaml.dump(dictionary, yaml_file, default_flow_style=False)
+
+        with open('result.yml', 'w') as yaml_file:
+            yaml.dump(dictionary, yaml_file, default_flow_style=False)
+
+
+if __name__ == '__main__':
+    rospy.init_node('pose_from_goal_saver')
+    PoseSaver()
+    rospy.spin()
