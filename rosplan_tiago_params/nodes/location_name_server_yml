@@ -2,17 +2,29 @@
 
 import os
 import rospy
+import yaml
 from geometry_msgs.msg import PoseStamped
 from rospy_message_converter import message_converter
-import yaml
+from visualization_msgs.msg import MarkerArray
+from rosplan_tiago_params.srv import *
 
 
-class PoseSaver:
+class LocationNameServer:
     def __init__(self):
-        rospy.Subscriber("move_base_simple/goal", PoseStamped, self.callback, queue_size=1)
+        self.node_name = "(" + rospy.get_name() + ")"
+
+        # service for query data from yml
+        self.srv = rospy.Service('location_name_service', GetLocation, self.__get_location)
+        rospy.loginfo('{} Ready to get location by its name (plan value)'.format(self.node_name))
+
+        # publish markers to view all poses on rviz
+        self.pub = rospy.Publisher("location_name_server/pose_markers", MarkerArray)
+
         self.dirpath = os.getcwd()
         # self.yaml_file_path = self.dirpath + '/../result.yml'
+        # TODO set yml location, move posesaver from common to this pkg
         self.yaml_file_path = 'result.yml'
+
 
     def callback(self, msg):
         # convert msg to dictionary
@@ -39,6 +51,6 @@ class PoseSaver:
 
 
 if __name__ == '__main__':
-    rospy.init_node('pose_from_goal_saver')
-    PoseSaver()
+    rospy.init_node('location_name_server')
+    LocationNameServer()
     rospy.spin()

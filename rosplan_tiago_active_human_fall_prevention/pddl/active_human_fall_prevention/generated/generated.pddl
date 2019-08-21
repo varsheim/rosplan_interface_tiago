@@ -13,6 +13,7 @@
 
     (linked_to_location luke luke_pose)
 
+    (scanned_area wp0 wp1)
 
     (human_coming)
 
