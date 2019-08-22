@@ -8,6 +8,8 @@ namespace KCL_rosplan {
     /* constructor */
     RPHumanInteract::RPHumanInteract(ros::NodeHandle &nh) {
         // perform setup
+        node_name = ros::this_node::getName();
+        node_name_pretty = '(' + node_name + ')';
     }
 
     /* action dispatch callback */

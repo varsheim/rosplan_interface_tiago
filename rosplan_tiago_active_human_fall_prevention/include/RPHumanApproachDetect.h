@@ -13,6 +13,8 @@
  * This file defines an action interface created in tutorial 10.
  */
 
+#define ACTION_ADDITION_TIME_S 2
+
 typedef actionlib::SimpleActionClient<rosplan_tiago_active_human_fall_prevention::HumanApproachDetectAction> Client;
 
 namespace KCL_rosplan {
@@ -25,6 +27,9 @@ namespace KCL_rosplan {
 
         ros::ServiceClient service_client;
         std::string current_destination;
+        std::string node_name;
+        std::string node_name_pretty;
+        
     public:
 
         /* constructor */

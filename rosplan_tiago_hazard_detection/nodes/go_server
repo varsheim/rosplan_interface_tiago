@@ -9,33 +9,16 @@ from rosplan_tiago_hazard_detection.msg import GoAction
 from rosplan_tiago_hazard_detection.msg import GoActionGoal
 from rosplan_tiago_hazard_detection.msg import GoActionFeedback
 from rosplan_tiago_hazard_detection.msg import GoActionResult
-
+from actionlib_msgs.msg import GoalStatus
 from move_base_msgs.msg import *
-
-# states from http://docs.ros.org/diamondback/api/actionlib_msgs/html/msg/GoalStatus.html
-PENDING = 0  # The goal has yet to be processed by the action server
-ACTIVE = 1  # The goal is currently being processed by the action server
-PREEMPTED = 2  # The goal received a cancel request after it started executing
-# and has since completed its execution (Terminal State)
-SUCCEEDED = 3  # The goal was achieved successfully by the action server (Terminal State)
-ABORTED = 4  # The goal was aborted during execution by the action server due
-#    to some failure (Terminal State)
-REJECTED = 5  # The goal was rejected by the action server without being processed,
-#    because the goal was unattainable or invalid (Terminal State)
-PREEMPTING = 6  # The goal received a cancel request after it started executing
-#    and has not yet completed execution
-RECALLING = 7  # The goal received a cancel request before it started executing,
-#    but the action server has not yet confirmed that the goal is canceled
-RECALLED = 8  # The goal received a cancel request before it started executing
-#    and was successfully cancelled (Terminal State)
-LOST = 9  # An action client can determine that a goal is LOST. This should not be
-#    sent over the wire by an action server
 
 
 NAVIGATION_MAX_TIME_S = 30
 
+
 class Initialize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
@@ -44,7 +27,7 @@ class Initialize(smach.State):
                                           'init_params'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
@@ -58,9 +41,10 @@ class Initialize(smach.State):
 
 class Navigate(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         self.current_pose = Pose()
         self.is_feedback_received = False
-        self.move_base_status = PENDING
+        self.move_base_status = GoalStatus.PENDING
         self.is_goal_achieved = False
 
         smach.State.__init__(self,
@@ -72,7 +56,7 @@ class Navigate(smach.State):
                                           'nav_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
         pose = userdata.nav_goal_pose
@@ -112,27 +96,13 @@ class Navigate(smach.State):
                 rospy.logwarn('State: Navigation took too much time, returning error')
                 return 'error'
 
-            rospy.sleep(0.05)
+            rospy.sleep(0.1)
 
         # Here check move_base DONE status
-        if self.move_base_status == SUCCEEDED:
-            return 'ok'
-
-        if (self.move_base_status == PREEMPTED) or (
-                self.move_base_status == PREEMPTING) or (
-                self.move_base_status == RECALLING) or (
-                self.move_base_status == RECALLED):
-            return 'preemption'
-
-        if (self.move_base_status == ABORTED) or (
-                self.move_base_status == REJECTED) or (
-                self.move_base_status == LOST) or (
-                self.move_base_status == PENDING) or (
-                self.move_base_status == ACTIVE):
+        if self.move_base_status != GoalStatus.SUCCEEDED:
             return 'error'
 
-        # should not enter here
-        return 'error'
+        return 'ok'
 
     def move_base_feedback_cb(self, feedback):
         self.current_pose = feedback.base_position.pose
@@ -148,14 +118,14 @@ class Navigate(smach.State):
 
 class Finalize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['final_actual_pose'],
                              output_keys=['final_result'])
 
-
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
         action_result = GoActionResult()

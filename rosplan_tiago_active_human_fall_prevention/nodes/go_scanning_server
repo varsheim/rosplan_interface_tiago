@@ -3,77 +3,166 @@
 import rospy
 import smach
 import smach_ros
+import actionlib
 
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningAction
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionGoal
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionFeedback
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionResult
+from move_base_msgs.msg import *
+from actionlib_msgs.msg import GoalStatus
+
+
+NAVIGATION_MAX_TIME_S = 120
 
 
 class Initialize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
                              output_keys=['init_feedback',
-                                          'init_item',
-                                          'init_params'])
+                                          'init_params',
+                                          'init_goal_pose',
+                                          'init_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        # take goal, check values, split into pose and params, check if params are okay
+        # take goal, split into pose and params
         # now the server receives only pose
-        goal = userdata.init_goal.blind_goal
+        goal_pose = userdata.init_goal.pose
+        userdata.init_goal_pose = goal_pose
 
-        userdata.init_item = goal
+        # goal_params = userdata.init_goal.params
+
+        action_feeback = GoScanningActionFeedback()
+        action_feeback.feedback.how_many_items_detected = 0
+        userdata.init_feedback = action_feeback.feedback
+
+        action_result = GoScanningActionResult()
+        action_result.result.is_goal_accomplished = False
+        userdata.init_result = action_result.result
 
         rospy.sleep(1)
         return 'ok'
 
 
-class Dummy(smach.State):
+class SetNavParams(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['dummy_goal',
-                                         'dummy_params'],
-                             output_keys=['dummy_feedback',
-                                          'dummy_info'])
+                             input_keys=['set_nav_params_params'],
+                             output_keys=['set_nav_params_feedback',
+                                          'set_nav_params_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        # robot movement here - using Tiago move_base
-        goal = userdata.dummy_goal
+        # setting planner params so it the robot moves slowly
+        # params = userdata.set_nav_params_params
+        #
+        # print params
 
-        print goal
+        action_feeback = GoScanningActionFeedback()
+        action_feeback.feedback.how_many_items_detected = 0
+        userdata.set_nav_params_feedback = action_feeback.feedback
+
+        action_result = GoScanningActionResult()
+        action_result.result.is_goal_accomplished = False
+        userdata.set_nav_params_result = action_result.result
 
         rospy.sleep(3)
         return 'ok'
 
 
-class Finalize(smach.State):
+class ScanArea(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.move_base_status = GoalStatus.PENDING
+        self.is_move_base_finished = False
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_info'],
-                             output_keys=['final_feedback',
-                                          'final_result'])
+                             input_keys=['scan_area_goal_pose'],
+                             output_keys=['scan_area_feedback',
+                                          'scan_area_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        # prepare some feedback & result
-        action_feedback = GoScanningActionFeedback()
-        action_feedback.feedback.percent_complete = 8
-        userdata.final_feedback = action_feedback.feedback
+        # robot movement here - using Tiago move_base
+        pose = userdata.scan_area_goal_pose
+
+        goal = MoveBaseGoal()
+        goal.target_pose.pose = pose
+        goal.target_pose.header.frame_id = 'map'
+        goal.target_pose.header.stamp = rospy.Time.now()
+
+        # TODO move the head down
+
+        # move the robot
+        client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        client.wait_for_server()
+
+        # start moving
+        client.send_goal(goal, self.move_base_done_cb)
+
+        # handle movement
+        start_time = rospy.Time.now()
+        self.is_move_base_finished = False
+        while self.is_move_base_finished == False:
+            end_time = rospy.Time.now()
+            loop_time = end_time - start_time
+            loop_time_s = loop_time.secs
+            if loop_time_s > NAVIGATION_MAX_TIME_S:
+                # break the loop, end with error state
+                rospy.logwarn('{}: {}: Navigation took too much time, returning error'.format(self.node_name, self.__class__.__name__))
+                return 'error'
+
+            # TODO here use image recognition
+
+            # TODO here put KB update
+
+            rospy.sleep(0.1)
+
+        # Here check move_base DONE status
+        if self.move_base_status != GoalStatus.SUCCEEDED:
+            return 'error'
+
+        action_feeback = GoScanningActionFeedback()
+        action_feeback.feedback.how_many_items_detected = 0
+        userdata.scan_area_feedback = action_feeback.feedback
 
         action_result = GoScanningActionResult()
-        action_result.result.is_undocked = 1
+        action_result.result.is_goal_accomplished = False
+        userdata.scan_area_result = action_result.result
+
+        rospy.sleep(3)
+        return 'ok'
+
+    def move_base_done_cb(self, status, result):
+        self.is_move_base_finished = True
+        self.move_base_status = status
+
+
+class Finalize(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'],
+                             input_keys=[],
+                             output_keys=['final_result'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # prepare some result
+        action_result = GoScanningActionResult()
+        action_result.result.is_goal_accomplished = True
         userdata.final_result = action_result.result
 
-        # robot approach check may be put here, some distances calculated
         rospy.sleep(2)
         return 'ok'
 
@@ -92,32 +181,38 @@ class GoScanningServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Dummy',
+                                   transitions={'ok': 'SetNavParams',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_feedback': 'sm_feedback',
-                                              'init_item': 'sm_goal',
-                                              'init_params': 'sm_params'})
+                                              'init_params': 'sm_params',
+                                              'init_goal_pose': 'sm_goal_pose',
+                                              'init_result': 'sm_result'})
 
-            smach.StateMachine.add('Dummy',
-                                   Dummy(),
+            smach.StateMachine.add('SetNavParams',
+                                   SetNavParams(),
+                                   transitions={'ok': 'ScanArea',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'set_nav_params_params': 'sm_params',
+                                              'set_nav_params_feedback': 'sm_feedback',
+                                              'set_nav_params_result': 'sm_result'})
+            smach.StateMachine.add('ScanArea',
+                                   ScanArea(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'dummy_goal': 'sm_goal',
-                                              'dummy_params': 'sm_params',
-                                              'dummy_feedback': 'sm_feedback',
-                                              'dummy_info': 'sm_info'})
+                                   remapping={'scan_area_goal_pose': 'sm_goal_pose',
+                                              'scan_area_feedback': 'sm_feedback',
+                                              'scan_area_result': 'sm_result'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
                                                 'ok': 'SM_SUCCEEDED'},
-                                   remapping={'final_info': 'sm_info',
-                                              'final_feedback': 'sm_feedback',
-                                              'final_result': 'sm_result'})
+                                   remapping={'final_result': 'sm_result'})
 
 
 def main():

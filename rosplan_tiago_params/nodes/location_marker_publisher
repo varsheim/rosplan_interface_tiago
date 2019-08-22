@@ -66,14 +66,14 @@ class LocationMarkerPublisher:
             for named_pose_key, named_pose_value in cur_yaml.items():
                 pose = named_pose_value['pose']
                 pose_message = message_converter.convert_dictionary_to_ros_message('geometry_msgs/Pose', pose)
-                marker_arrow = self.marker_init(named_pose_key,
+                marker_arrow = self.marker_init(named_pose_value['name'],
                                                 marker_id_iter,
                                                 Marker.ARROW,
                                                 pose_message,
                                                 named_pose_value['name'])
                 marker_id_iter = marker_id_iter + 1
 
-                marker_text = self.marker_init(named_pose_key,
+                marker_text = self.marker_init(named_pose_value['name'],
                                                marker_id_iter,
                                                Marker.TEXT_VIEW_FACING,
                                                pose_message,

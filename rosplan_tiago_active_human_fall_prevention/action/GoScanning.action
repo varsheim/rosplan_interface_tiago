@@ -1,8 +1,8 @@
 # Goal
-float32 blind_goal
+geometry_msgs/Pose pose
 ---
 # Result
-float32 is_undocked
+bool is_goal_accomplished
 ---
 # feedback
-float32 percent_complete
+float32 how_many_items_detected

@@ -8,43 +8,54 @@ namespace KCL_rosplan {
     /* constructor */
     RPGoScanning::RPGoScanning(ros::NodeHandle &nh) {
         // perform setup
+        node_name = ros::this_node::getName();
+        node_name_pretty = '(' + node_name + ')';
     }
 
     /* action dispatch callback */
     bool RPGoScanning::concreteCallback(const rosplan_dispatch_msgs::ActionDispatch::ConstPtr& msg) {
+	    // The action implementation goes here.
+	    // Get action parameters
+	    auto action_parameters = msg.get()->parameters;
+	    auto action_duration_s = msg.get()->duration;
+	    auto action_real_duration_s = action_duration_s + ACTION_ADDITION_TIME_S;
 
-        // The action implementation goes here.
-        // Get action parameters
-        auto action_parameters = msg.get()->parameters;
+	    for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
+		    // "destination" is defined in pddl domain as param name
+		    if (strcmp(it->key.c_str(), "destination") == 0) {
+			    current_destination = it->value.c_str();
+		    }
+	    }
 
-        // log available parameters
-        for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
-            ROS_INFO("%s <----> %s", it->key.c_str(), it->value.c_str());
-        }
+	    // Get the actual values by calling the service
+	    // Fill the srv message first
+	    rosplan_tiago_params::GetLocation srv;
+	    srv.request.location = current_destination;
 
-        // Get the actual values by calling the service
-
-        ROS_INFO(msg.get()->parameters.back().value.c_str());
+	    if (service_client.call(srv)) {
+		    ROS_INFO("%s: Got location params of %s", node_name_pretty.c_str(), current_destination.c_str());
+	    }
+	    else {
+		    ROS_ERROR("%s: Failed to call service location_name_service", node_name_pretty.c_str());
+		    return false;
+	    }
 
         action_client.waitForServer();
         rosplan_tiago_active_human_fall_prevention::GoScanningGoal goal;
 
         // Fill in goal here
-        goal.blind_goal = 500;
-
+        goal.pose = srv.response.pose;
         action_client.sendGoal(goal);
-
-        action_client.waitForResult(ros::Duration(10.0));
+        action_client.waitForResult(ros::Duration(action_real_duration_s));
 
         if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-
+			// here should be return true;
+			// else should be return false; - action preemted or failed
         }
 
         // complete the action
-        ROS_INFO("KCL: (%s) GOSCANNING Action completing.\n", msg->name.c_str());
+        ROS_INFO("%s: GOSCANNING Action completing", node_name_pretty.c_str());
         return true;
-
-
     }
 } // close namespace
 
