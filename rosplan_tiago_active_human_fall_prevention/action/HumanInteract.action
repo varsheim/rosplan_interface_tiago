@@ -1,5 +1,5 @@
 # Goal
-geometry_msgs/Pose pose
+string human
 ---
 # Result
 bool is_human_informed

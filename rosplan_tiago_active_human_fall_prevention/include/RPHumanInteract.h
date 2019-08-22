@@ -10,6 +10,8 @@
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPHUMANINTERACT_H
 #define ROSPLAN_INTERFACE_TIAGO_RPHUMANINTERACT_H
 
+#define ACTION_ADDITION_TIME_S 2
+
 typedef actionlib::SimpleActionClient<rosplan_tiago_active_human_fall_prevention::HumanInteractAction> Client;
 
 namespace KCL_rosplan {
@@ -20,7 +22,7 @@ namespace KCL_rosplan {
     private:
         Client action_client{"human_interact", true};
         ros::ServiceClient service_client;
-        std::string current_destination;
+        std::string human_name;
         std::string node_name;
         std::string node_name_pretty;
     public:
