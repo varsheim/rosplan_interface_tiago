@@ -46,18 +46,14 @@ class TiagoKB:
             temp_item_knowledge.is_negative = is_negation
             if len(values) > 0:
                 value = values[i]
-                print value
                 for key, value in value.iteritems():
                     temp_item_knowledge.values.append(diagnostic_msgs.msg.KeyValue(key, value))
 
-            print temp_item_knowledge
-            print "\n\n"
             items.knowledge.append(temp_item_knowledge)
             temp_item_update_type.append(self.knowledge_types_dict[k_type_add if should_add else k_type_remove])
 
         # print items.knowledge
         items.update_type = temp_item_update_type
-        print items
 
         try:
             print "TIAGO_KB: Calling Service"

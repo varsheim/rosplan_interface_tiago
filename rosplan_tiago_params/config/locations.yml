@@ -1,0 +1,120 @@
+PoseNamed0:
+  name: initial
+  pose:
+    orientation:
+      w: 0.8960733980461748
+      x: 0.0
+      y: 0.0
+      z: 0.44390591944012375
+    position:
+      x: 1.9493370056152344
+      y: 0.5301170349121094
+      z: 0.0
+PoseNamed1:
+  name: lamp-location
+  pose:
+    orientation:
+      w: 0.9913973638720474
+      x: 0.0
+      y: 0.0
+      z: 0.1308864657157313
+    position:
+      x: 3.2447891235351562
+      y: 2.822932720184326
+      z: 0.0
+PoseNamed2:
+  name: door-location
+  pose:
+    orientation:
+      w: 0.9763179109652838
+      x: 0.0
+      y: 0.0
+      z: 0.21634078840658844
+    position:
+      x: 4.660259246826172
+      y: 2.9876036643981934
+      z: 0.0
+PoseNamed3:
+  name: glass-location
+  pose:
+    orientation:
+      w: 0.7024399865158808
+      x: 0.0
+      y: 0.0
+      z: 0.7117429770244096
+    position:
+      x: 4.879862308502197
+      y: 3.9577066898345947
+      z: 0.0
+PoseNamed4:
+  name: sandwich-location
+  pose:
+    orientation:
+      w: 0.7607225060747553
+      x: 0.0
+      y: 0.0
+      z: 0.649077244056009
+    position:
+      x: 4.915851593017578
+      y: 5.552316188812256
+      z: 0.0
+PoseNamed5:
+  name: luke-location
+  pose:
+    orientation:
+      w: 0.6119055591570969
+      x: 0.0
+      y: 0.0
+      z: -0.7909308355808619
+    position:
+      x: 4.757297039031982
+      y: 0.1441645622253418
+      z: 0.0
+PoseNamed6:
+  name: john-location
+  pose:
+    orientation:
+      w: 0.015321371147500996
+      x: 0.0
+      y: 0.0
+      z: 0.9998826209041541
+    position:
+      x: 5.1762237548828125
+      y: 6.0993757247924805
+      z: 0.0
+PoseNamed7:
+  name: luke-greet-location
+  pose:
+    orientation:
+      w: 0.7198104959619801
+      x: 0.0
+      y: 0.0
+      z: -0.6941706201669502
+    position:
+      x: 4.9220662117004395
+      y: 1.5769767761230469
+      z: 0.0
+PoseNamed8:
+  name: john-greet-location
+  pose:
+    orientation:
+      w: 0.8033000575278186
+      x: 0.0
+      y: 0.0
+      z: -0.5955745273060319
+    position:
+      x: 4.692020416259766
+      y: 3.9041097164154053
+      z: 0.0
+PoseNamed9:
+  name: wp0
+  pose:
+    orientation:
+      w: 0.6174962162948692
+      x: 0.0
+      y: 0.0
+      z: -0.7865738508630453
+    position:
+      x: 4.835605144500732
+      y: 5.694759845733643
+      z: 0.0

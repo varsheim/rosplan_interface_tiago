@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+
+import rospy
+import yaml
+import rospkg
+from std_msgs.msg import Header
+from visualization_msgs.msg import Marker, MarkerArray
+from rospy_message_converter import message_converter
+
+CONFIG_RELATIVE_PATH = '/config/locations.yml'
+PKG_NAME = 'rosplan_tiago_params'
+
+
+class LocationMarkerPublisher:
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+
+        # publish markers to view all poses on rviz
+        self.pub = rospy.Publisher("location_name_server/pose_markers", MarkerArray, queue_size=1)
+        rospy.loginfo('{} Publishing poses markers from saved yml...'.format(self.node_name))
+
+        # path to yml file
+        rospack = rospkg.RosPack()
+        rospack_path = rospack.get_path(PKG_NAME)
+        self.yaml_file_path = rospack_path + CONFIG_RELATIVE_PATH
+
+        self.marker_array = MarkerArray()
+        self.publisher()
+
+    def  marker_init(self, ns, marker_id, marker_type, marker_pose, marker_text):
+        marker = Marker()
+        h = Header()
+
+        h.stamp = rospy.Time.now()
+        h.frame_id = 'map'
+
+        marker.header = h
+        marker.ns = ns
+        marker.id = marker_id
+        marker.type = marker_type
+        marker.action = Marker.ADD
+        marker.scale.x = 0.5
+        if marker_type is Marker.TEXT_VIEW_FACING:
+            marker.scale.y, marker.scale.z = 0.3, 0.3
+        else:
+            marker.scale.y, marker.scale.z = 0.03, 0.03
+
+        marker.color.a = 1.0
+        marker.color.g = 1.0
+        marker.pose = marker_pose
+        marker.text = marker_text
+        marker.lifetime = rospy.Duration(2)
+
+        return marker
+
+    def publisher(self):
+        rate = rospy.Rate(1)
+
+        with open(self.yaml_file_path, 'r') as yaml_file:
+            cur_yaml = yaml.safe_load(yaml_file)
+            if cur_yaml is None:
+                cur_yaml = {}
+
+            # append found poses into marker array
+            marker_id_iter = 0
+            for named_pose_key, named_pose_value in cur_yaml.items():
+                pose = named_pose_value['pose']
+                pose_message = message_converter.convert_dictionary_to_ros_message('geometry_msgs/Pose', pose)
+                marker_arrow = self.marker_init(named_pose_key,
+                                                marker_id_iter,
+                                                Marker.ARROW,
+                                                pose_message,
+                                                named_pose_value['name'])
+                marker_id_iter = marker_id_iter + 1
+
+                marker_text = self.marker_init(named_pose_key,
+                                               marker_id_iter,
+                                               Marker.TEXT_VIEW_FACING,
+                                               pose_message,
+                                               named_pose_value['name'])
+                marker_id_iter = marker_id_iter + 1
+
+                self.marker_array.markers.append(marker_arrow)
+                self.marker_array.markers.append(marker_text)
+
+        while not rospy.is_shutdown():
+            self.pub.publish(self.marker_array)
+
+            rate.sleep()
+
+
+if __name__ == '__main__':
+    rospy.init_node('location_name_server')
+    LocationMarkerPublisher()
+    rospy.spin()

@@ -19,6 +19,7 @@ namespace KCL_rosplan {
 
 
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
+        	// "destination" is defined in pddl domain as param name
             if (strcmp(it->key.c_str(), "destination") == 0) {
                 current_destination = it->value.c_str();
             }
@@ -29,8 +30,10 @@ namespace KCL_rosplan {
         rosplan_tiago_params::GetLocation srv;
         srv.request.location = current_destination;
 
+	    ROS_INFO(current_destination.c_str());
+
         if (service_client.call(srv)) {
-            ROS_INFO("Got matching location params of %s.", current_destination.c_str());
+            ROS_INFO("Got location params of %s.", current_destination.c_str());
         }
         else {
             ROS_ERROR("Failed to call service location_name_service");

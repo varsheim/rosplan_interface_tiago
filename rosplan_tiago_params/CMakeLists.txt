@@ -4,13 +4,14 @@ project(rosplan_tiago_params)
 add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  geometry_msgs
-  message_generation
-  tf2
-  roslib
+	roscpp
+	rospy
+	std_msgs
+	geometry_msgs
+	message_generation
+	rospy_message_converter
+	tf2
+	roslib
 )
 
 find_package(Boost REQUIRED COMPONENTS)
@@ -43,5 +44,8 @@ include_directories(
 
 install(PROGRAMS
 	nodes/location_name_server
+	nodes/location_name_server_yml
+	nodes/location_marker_publisher
+	nodes/pose_saver
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 	)

@@ -1,30 +1,28 @@
 #!/usr/bin/env python
 
-import os
 import rospy
 import yaml
+import pprint
+import rospkg
 from geometry_msgs.msg import PoseStamped
 from rospy_message_converter import message_converter
-from visualization_msgs.msg import MarkerArray
-from rosplan_tiago_params.srv import *
+
+CONFIG_RELATIVE_PATH = '/config/locations.yml'
+PKG_NAME = 'rosplan_tiago_params'
 
 
-class LocationNameServer:
+class PoseSaver:
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
+        self.sub_topic_name = "move_base_simple/goal"
 
-        # service for query data from yml
-        self.srv = rospy.Service('location_name_service', GetLocation, self.__get_location)
-        rospy.loginfo('{} Ready to get location by its name (plan value)'.format(self.node_name))
+        rospy.Subscriber(self.sub_topic_name, PoseStamped, self.callback, queue_size=1)
+        rospy.loginfo('{} Ready save poses from topic: {}'.format(self.node_name, self.sub_topic_name))
 
-        # publish markers to view all poses on rviz
-        self.pub = rospy.Publisher("location_name_server/pose_markers", MarkerArray)
-
-        self.dirpath = os.getcwd()
-        # self.yaml_file_path = self.dirpath + '/../result.yml'
-        # TODO set yml location, move posesaver from common to this pkg
-        self.yaml_file_path = 'result.yml'
-
+        # path to yml file
+        rospack = rospkg.RosPack()
+        rospack_path = rospack.get_path(PKG_NAME)
+        self.yaml_file_path = rospack_path + CONFIG_RELATIVE_PATH
 
     def callback(self, msg):
         # convert msg to dictionary
@@ -44,13 +42,17 @@ class LocationNameServer:
                 }
             }
 
+            pretty_dictionary = pprint.pformat(dictionary)
+            rospy.loginfo('{} Got new pose:\n{}'.format(self.node_name, pretty_dictionary))
             cur_yaml.update(dictionary)
 
         with open(self.yaml_file_path, 'w') as yaml_file:
             yaml.safe_dump(cur_yaml, yaml_file, default_flow_style=False)
 
+        rospy.loginfo('{} The new pose has been written to file'.format(self.node_name, self.sub_topic_name))
+
 
 if __name__ == '__main__':
-    rospy.init_node('location_name_server')
-    LocationNameServer()
+    rospy.init_node('pose_from_goal_saver')
+    PoseSaver()
     rospy.spin()
