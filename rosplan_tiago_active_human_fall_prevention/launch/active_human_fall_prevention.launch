@@ -11,6 +11,9 @@
 
 
     <!-- actionlib servers -->
+    <node name="rosplan_interface_go_server" pkg="rosplan_tiago_hazard_detection" type="go_server" respawn="false" output="screen">
+    </node>
+
     <node name="rosplan_interface_go_scanning_server" pkg="rosplan_tiago_active_human_fall_prevention" type="go_scanning_server" respawn="false" output="screen">
     </node>
 

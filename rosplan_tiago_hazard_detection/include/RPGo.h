@@ -11,9 +11,8 @@
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPGO_H
 #define ROSPLAN_INTERFACE_TIAGO_RPGO_H
 
-/**
- * This file defines an action interface created in tutorial 10.
- */
+#define ACTION_ADDITION_TIME_S 2
+
 
 typedef actionlib::SimpleActionClient<rosplan_tiago_hazard_detection::GoAction> Client;
 
@@ -23,8 +22,9 @@ namespace KCL_rosplan {
     {
 
     private:
-        // Client action_client{"go", true};
-
+        Client action_client{"go", true};
+	    std::string node_name;
+	    std::string node_name_pretty;
         ros::ServiceClient service_client;
         std::string current_destination;
     public:

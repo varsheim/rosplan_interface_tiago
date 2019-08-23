@@ -7,7 +7,7 @@ namespace KCL_rosplan {
 
     /* constructor */
     RPGoScanning::RPGoScanning(ros::NodeHandle &nh) {
-        // perform setup
+	    service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
         node_name = ros::this_node::getName();
         node_name_pretty = '(' + node_name + ')';
     }

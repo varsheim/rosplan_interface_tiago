@@ -8,6 +8,8 @@ namespace KCL_rosplan {
     RPGo::RPGo(ros::NodeHandle &nh) {
         // Create service client for getting location params
         service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
+	    node_name = ros::this_node::getName();
+	    node_name_pretty = '(' + node_name + ')';
     }
 
     /* action dispatch callback */
@@ -15,9 +17,9 @@ namespace KCL_rosplan {
 
         // The action implementation goes here.
         // Get action parameters
-        auto action_parameters = msg.get()->parameters;
-
-
+	    auto action_parameters = msg.get()->parameters;
+	    auto action_duration_s = msg.get()->duration;
+	    auto action_real_duration_s = action_duration_s + ACTION_ADDITION_TIME_S;
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
         	// "destination" is defined in pddl domain as param name
             if (strcmp(it->key.c_str(), "destination") == 0) {
@@ -30,37 +32,30 @@ namespace KCL_rosplan {
         rosplan_tiago_params::GetLocation srv;
         srv.request.location = current_destination;
 
-	    ROS_INFO(current_destination.c_str());
+	    if (service_client.call(srv)) {
+		    ROS_INFO("%s: Got location params of %s", node_name_pretty.c_str(), current_destination.c_str());
+	    }
+	    else {
+		    ROS_ERROR("%s: Failed to call service location_name_service", node_name_pretty.c_str());
+		    return false;
+	    }
 
-        if (service_client.call(srv)) {
-            ROS_INFO("Got location params of %s.", current_destination.c_str());
-        }
-        else {
-            ROS_ERROR("Failed to call service location_name_service");
-            return false;
-        }
+	    action_client.waitForServer();
+	    rosplan_tiago_hazard_detection::GoGoal goal;
 
-//        action_client.waitForServer();
-//        rosplan_tiago_hazard_detection::GoGoal goal;
-//
-//        // Fill in goal here
-//        goal.pose = srv.response.pose;
-//        action_client.sendGoal(goal);
-//        action_client.waitForResult(ros::Duration(30.0));
-//
-//
-//        if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-//            // complete the action
-//            ROS_INFO("KCL: (%s) GO Action completing.", msg->name.c_str());
-//
-//            return true;
-//        }
-//        else {
-//            ROS_INFO("CLIENT: GO: Current State: %s\n", action_client.getState().toString().c_str());
-//
-//            return false;
-//        }
-        return true;
+	    // Fill in goal here
+	    goal.pose = srv.response.pose;
+	    action_client.sendGoal(goal);
+	    action_client.waitForResult(ros::Duration(action_real_duration_s));
+
+	    if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+		    // here should be return true;
+		    // else should be return false; - action preemted or failed
+	    }
+
+	    // complete the action
+	    ROS_INFO("%s: GO Action completing", node_name_pretty.c_str());
+	    return true;
     }
 } // close namespace
 

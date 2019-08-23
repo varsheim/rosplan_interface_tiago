@@ -4,6 +4,7 @@ import rospy
 import smach
 import smach_ros
 import actionlib
+import dynamic_reconfigure.client
 
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningAction
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionGoal
@@ -11,6 +12,7 @@ from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionFeedb
 from rosplan_tiago_active_human_fall_prevention.msg import GoScanningActionResult
 from move_base_msgs.msg import *
 from actionlib_msgs.msg import GoalStatus
+from rosplan_tiago_common.tiago_torso_controller import TiagoHeadController
 
 
 NAVIGATION_MAX_TIME_S = 120
@@ -45,13 +47,13 @@ class Initialize(smach.State):
         action_result.result.is_goal_accomplished = False
         userdata.init_result = action_result.result
 
-        rospy.sleep(1)
         return 'ok'
 
 
 class SetNavParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['set_nav_params_params'],
@@ -63,7 +65,12 @@ class SetNavParams(smach.State):
 
         # setting planner params so it the robot moves slowly
         # params = userdata.set_nav_params_params
-        #
+        params = {
+            'max_vel_x': 0.1,
+            'acc_lim_x': 0.05
+        }
+
+        config = self.dynparam_client.update_configuration(params)
         # print params
 
         action_feeback = GoScanningActionFeedback()
@@ -74,7 +81,6 @@ class SetNavParams(smach.State):
         action_result.result.is_goal_accomplished = False
         userdata.set_nav_params_result = action_result.result
 
-        rospy.sleep(3)
         return 'ok'
 
 
@@ -83,6 +89,7 @@ class ScanArea(smach.State):
         self.node_name = "(" + rospy.get_name() + ")"
         self.move_base_status = GoalStatus.PENDING
         self.is_move_base_finished = False
+        self.head_controller = TiagoHeadController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['scan_area_goal_pose'],
@@ -100,8 +107,8 @@ class ScanArea(smach.State):
         goal.target_pose.header.frame_id = 'map'
         goal.target_pose.header.stamp = rospy.Time.now()
 
-        # TODO move the head down
-
+        # move head down
+        self.head_controller.tilt_down()
         # move the robot
         client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         client.wait_for_server()
@@ -139,7 +146,6 @@ class ScanArea(smach.State):
         action_result.result.is_goal_accomplished = False
         userdata.scan_area_result = action_result.result
 
-        rospy.sleep(3)
         return 'ok'
 
     def move_base_done_cb(self, status, result):
@@ -150,6 +156,8 @@ class ScanArea(smach.State):
 class Finalize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
+        self.head_controller = TiagoHeadController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=[],
@@ -157,13 +165,20 @@ class Finalize(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+        # set default params back
+        params = {
+            'max_vel_x': 0.5,
+            'acc_lim_x': 0.2
+        }
+        config = self.dynparam_client.update_configuration(params)
 
+        # HEAD UP
+        self.head_controller.tilt_forward()
         # prepare some result
         action_result = GoScanningActionResult()
         action_result.result.is_goal_accomplished = True
         userdata.final_result = action_result.result
 
-        rospy.sleep(2)
         return 'ok'
 
 

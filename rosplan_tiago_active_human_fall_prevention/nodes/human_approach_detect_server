@@ -15,6 +15,7 @@ from rosplan_tiago_common.rosplan_control import ROSPlanControlClient
 
 class Initialize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
@@ -23,11 +24,11 @@ class Initialize(smach.State):
                                           'init_params'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
-        goal = userdata.init_goal.blind_goal
+        goal = userdata.init_goal.dummy_goal
 
         userdata.init_item = goal
 
@@ -37,6 +38,7 @@ class Initialize(smach.State):
 
 class Dummy(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['dummy_goal',
@@ -46,11 +48,10 @@ class Dummy(smach.State):
                                           'dummy_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
         goal = userdata.dummy_goal
-        print goal
 
         tiago_kb = TiagoKB()
         rosplan_control = ROSPlanControlClient()
@@ -82,18 +83,13 @@ class Dummy(smach.State):
         tiago_kb.add_remove_knowledge("human_coming", [], should_add=False, is_negation=True)
         tiago_kb.add_remove_knowledge("not_human_coming", [], should_add=False)
 
-        rospy.sleep(10)
+        rospy.sleep(30)
 
         # rosplan master-blaster here
         rosplan_control.replan_immediately_routine()
 
-        # prepare some feedback & result
-        action_feedback = HumanApproachDetectActionFeedback()
-        action_feedback.feedback.percent_complete = 8
-        userdata.dummy_feedback = action_feedback.feedback
-
         action_result = HumanApproachDetectActionResult()
-        action_result.result.is_undocked = 1
+        action_result.result.dummy_result = 1
         userdata.dummy_result = action_result.result
 
         # now exit gently by returning smach ending code
@@ -102,6 +98,7 @@ class Dummy(smach.State):
 
 class Finalize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['final_info'],
@@ -109,15 +106,15 @@ class Finalize(smach.State):
                                           'final_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
-        action_feedback = HumanApproachDetectActionFeedback()
-        action_feedback.feedback.percent_complete = 8
-        userdata.final_feedback = action_feedback.feedback
+        # action_feedback = HumanApproachDetectActionFeedback()
+        # action_feedback.feedback.percent_complete = 8
+        # userdata.final_feedback = action_feedback.feedback
 
         action_result = HumanApproachDetectActionResult()
-        action_result.result.is_undocked = 1
+        action_result.result.dummy_result = 1
         userdata.final_result = action_result.result
 
         # robot approach check may be put here, some distances calculated

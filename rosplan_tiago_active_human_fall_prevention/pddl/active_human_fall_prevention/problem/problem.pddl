@@ -4,7 +4,7 @@
     luke john - human
     rico - robot
     initial - robot-location
-    luke_pose - human-location
+    luke-location - human-location
     wp0 wp1 wp2 wp3 wp4 wp5 wp6 - waypoint
 )
 
@@ -14,7 +14,7 @@
     (not_human_coming)
     (not (human_coming))
 
-    (linked_to_location luke luke_pose)
+    (linked_to_location luke luke-location)
 )
 
 (:goal (and

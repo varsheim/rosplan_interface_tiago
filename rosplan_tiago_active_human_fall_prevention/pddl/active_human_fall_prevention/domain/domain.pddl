@@ -15,7 +15,7 @@
 
 (:durative-action GO
     :parameters (?obj - robot ?start - location ?destination - location)
-    :duration (= ?duration 30)
+    :duration (= ?duration 60)
     :condition (and
         (at start (at ?obj ?start)))
     :effect (and

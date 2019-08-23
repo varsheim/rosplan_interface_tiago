@@ -8,10 +8,12 @@ from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractAction
 from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionGoal
 from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionFeedback
 from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionResult
+from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 
 
 class Initialize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
@@ -20,11 +22,11 @@ class Initialize(smach.State):
                                           'init_params'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
-        goal = userdata.init_goal.blind_goal
+        goal = userdata.init_goal.human
 
         userdata.init_item = goal
 
@@ -34,6 +36,8 @@ class Initialize(smach.State):
 
 class Dummy(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['dummy_goal',
@@ -42,19 +46,26 @@ class Dummy(smach.State):
                                           'dummy_info'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
         goal = userdata.dummy_goal
 
-        print goal
-
+        self.speech_controller.tts('Hi i need to tell you what i found!')
         rospy.sleep(3)
+        self.speech_controller.tts('Item one at position x')
+        rospy.sleep(3)
+        self.speech_controller.tts('Item two at position y')
+        rospy.sleep(3)
+        self.speech_controller.tts('That is all human. Take care')
+        rospy.sleep(3)
+
         return 'ok'
 
 
 class Finalize(smach.State):
     def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['final_info'],
@@ -62,15 +73,15 @@ class Finalize(smach.State):
                                           'final_result'])
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: {}'.format(self.__class__.__name__))
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
         action_feedback = HumanInteractActionFeedback()
-        action_feedback.feedback.percent_complete = 8
+        action_feedback.feedback.percent_of_knowledge_given = 69
         userdata.final_feedback = action_feedback.feedback
 
         action_result = HumanInteractActionResult()
-        action_result.result.is_undocked = 1
+        action_result.result.is_human_informed = 1
         userdata.final_result = action_result.result
 
         # robot approach check may be put here, some distances calculated

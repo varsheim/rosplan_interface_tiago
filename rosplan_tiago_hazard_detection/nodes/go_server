@@ -78,7 +78,6 @@ class Navigate(smach.State):
         userdata.nav_result = action_result.result
 
         start_time = rospy.Time.now()
-        print 'IS GOAL ACHIEVED: {}'.format(self.is_goal_achieved)
 
         self.is_goal_achieved = False
         while self.is_goal_achieved == False:
