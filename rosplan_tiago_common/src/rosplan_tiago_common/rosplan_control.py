@@ -5,7 +5,7 @@ from std_srvs.srv import *
 from rosplan_tiago_common.msg import ROSPlanService
 
 
-class ROSPlanControlClient:
+class ROSPlanSysControlClient:
     srv_class_string_dict = {
         Empty: 'Empty',
         DispatchService: 'DispatchService'

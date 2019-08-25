@@ -9,8 +9,8 @@ from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAc
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionFeedback
 from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionResult
 
-from rosplan_tiago_common.tiago_kb import TiagoKB
-from rosplan_tiago_common.rosplan_control import ROSPlanControlClient
+from rosplan_tiago_common.tiago_kb import TiagoKBUpdate
+from rosplan_tiago_common.rosplan_control import ROSPlanSysControlClient
 
 
 class Initialize(smach.State):
@@ -53,8 +53,8 @@ class Dummy(smach.State):
         # robot movement here - using Tiago move_base
         goal = userdata.dummy_goal
 
-        tiago_kb = TiagoKB()
-        rosplan_control = ROSPlanControlClient()
+        tiago_kb = TiagoKBUpdate()
+        rosplan_control = ROSPlanSysControlClient()
 
         # remove scanning area goals
         # dictionary order is IMPORTANT - knowledge values are based on this so i use OrderedDict
