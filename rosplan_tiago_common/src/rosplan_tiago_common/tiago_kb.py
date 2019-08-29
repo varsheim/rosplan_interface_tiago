@@ -73,19 +73,24 @@ class TiagoKBUpdate:
 
 class TiagoKBQuery:
     def __init__(self,
-                 query_state_service_name = 'rosplan_knowledge_base/query_state'):
+                 query_state_service_name='rosplan_knowledge_base/query_state',
+                 is_silent=False):
 
         self.query_state_service_name = query_state_service_name
+        self.is_silent = is_silent
 
     def __query_state(self, query):
         try:
-            print "{}: Calling Service".format(self.__class__.__name__)
+            if not self.is_silent:
+                print "{}: Calling Service".format(self.__class__.__name__)
             query_proxy = rospy.ServiceProxy(self.query_state_service_name, KnowledgeQueryService)
             query_response = query_proxy(query)
-            print "{}: Response is: {}".format(self.__class__.__name__, query_response.results)
+            if not self.is_silent:
+                print "{}: Response is: {}".format(self.__class__.__name__, query_response.results)
             return query_response.results
         except rospy.ServiceException, e:
-            print "{}: Service call failed: {}".format(self.__class__.__name__, e)
+            if not self.is_silent:
+                print "{}: Service call failed: {}".format(self.__class__.__name__, e)
 
     def query_instance(self):
         query = []

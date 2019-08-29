@@ -3,13 +3,12 @@ import rospy
 import smach
 import smach_ros
 import actionlib
+import dynamic_reconfigure.client
 
 from geometry_msgs.msg import Pose
-from rosplan_tiago_hazard_detection.msg import GoAction
-from rosplan_tiago_hazard_detection.msg import GoActionGoal
-from rosplan_tiago_hazard_detection.msg import GoActionFeedback
-from rosplan_tiago_hazard_detection.msg import GoActionResult
+from rosplan_tiago_hazard_detection.msg import GoAction, GoActionGoal, GoActionFeedback, GoActionResult
 from actionlib_msgs.msg import GoalStatus
+from pal_common_msgs.msg import *
 from move_base_msgs.msg import *
 
 
@@ -19,6 +18,8 @@ NAVIGATION_MAX_TIME_S = 30
 class Initialize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
@@ -32,10 +33,21 @@ class Initialize(smach.State):
         # take goal, check values, split into pose and params, check if params are okay
         # now the server receives only pose
         pose = userdata.init_goal.pose
-
         userdata.init_goal_pose = pose
 
-        rospy.sleep(1)
+        # run pal_head_manager
+        # bring back default head movement
+        self.pal_head_manager_client.wait_for_server()
+        self.pal_head_manager_client.cancel_all_goals()
+
+        # setting planner params so the robot moves normally
+        # params = userdata.set_nav_params_params
+        params = {
+            'max_vel_x': 0.5,
+            'acc_lim_x': 0.2
+        }
+        config = self.dynparam_client.update_configuration(params)
+
         return 'ok'
 
 
@@ -132,7 +144,6 @@ class Finalize(smach.State):
 
         userdata.final_result = action_result.result
 
-        rospy.sleep(1)
         return 'ok'
 
 

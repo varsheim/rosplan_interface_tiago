@@ -30,7 +30,6 @@ class Initialize(smach.State):
 
         userdata.init_item = goal
 
-        rospy.sleep(1)
         return 'ok'
 
 
@@ -57,7 +56,7 @@ class Dummy(smach.State):
         rospy.sleep(3)
         self.speech_controller.tts('Item two at position y')
         rospy.sleep(3)
-        self.speech_controller.tts('That is all human. Take care')
+        self.speech_controller.tts('That is all, human. Take care')
         rospy.sleep(3)
 
         return 'ok'
@@ -85,7 +84,7 @@ class Finalize(smach.State):
         userdata.final_result = action_result.result
 
         # robot approach check may be put here, some distances calculated
-        rospy.sleep(2)
+
         return 'ok'
 
 

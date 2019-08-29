@@ -42,23 +42,23 @@ class ROSPlanSysControlClient:
         rospy.sleep(rospy.Duration(nsecs=delay_after_call_ms * 1000000))
 
     def generate_problem(self):
-        delay_after_ms = 1000
+        delay_after_ms = 200
         self.__call_service(self.problem_generation_service_name, Empty, delay_after_ms)
 
     def planning(self):
-        delay_after_ms = 1000
+        delay_after_ms = 200
         self.__call_service(self.planning_service_name, Empty, delay_after_ms)
 
     def parse_plan(self):
-        delay_after_ms = 1000
+        delay_after_ms = 200
         self.__call_service(self.parse_plan_service_name, Empty, delay_after_ms)
 
     def dispatch_plan(self):
-        delay_after_ms = 1000
+        delay_after_ms = 200
         self.__call_service(self.dispatch_service_name, DispatchService, delay_after_ms)
 
     def stop_dispatch_plan(self):
-        delay_after_ms = 5000  # maybe it can be less?
+        delay_after_ms = 1000  # maybe it can be less?
         self.__call_service(self.stop_dispatch_service_name, Empty, delay_after_ms)
 
     def replan_immediately_routine(self):
