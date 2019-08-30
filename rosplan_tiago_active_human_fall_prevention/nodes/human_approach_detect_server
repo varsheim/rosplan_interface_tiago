@@ -5,12 +5,10 @@ import smach
 import smach_ros
 from collections import OrderedDict
 
-from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAction
-from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionFeedback
-from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectActionResult
-
+from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAction, HumanApproachDetectActionFeedback, HumanApproachDetectActionResult
 from rosplan_tiago_common.tiago_kb import TiagoKBUpdate
 from rosplan_tiago_common.rosplan_control import ROSPlanSysControlClient
+from std_msgs.msg import Empty
 
 
 class Initialize(smach.State):
@@ -39,6 +37,7 @@ class Initialize(smach.State):
 class Dummy(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
+        self.is_human_coming = False
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['dummy_goal',
@@ -46,6 +45,9 @@ class Dummy(smach.State):
                              output_keys=['dummy_feedback',
                                           'dummy_info',
                                           'dummy_result'])
+
+    def callback(self, msg):
+        self.is_human_coming = True
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -56,7 +58,8 @@ class Dummy(smach.State):
         tiago_kb = TiagoKBUpdate()
         rosplan_control = ROSPlanSysControlClient()
 
-        rospy.sleep(40)
+        # block until human is coming
+        rospy.wait_for_message('~/human_coming', Empty)
 
         # remove scanning area goals
         # dictionary order is IMPORTANT - knowledge values are based on this so i use OrderedDict
@@ -76,8 +79,8 @@ class Dummy(smach.State):
         tiago_kb.add_remove_goals("human_informed", [temp_ordered_dict], should_add=True)
 
         # add robot at initial position
-        temp_ordered_dict = OrderedDict([("obj", "rico"), ("loc", "initial")])
-        tiago_kb.add_remove_knowledge("at", [temp_ordered_dict], should_add=True)
+        # temp_ordered_dict = OrderedDict([("obj", "rico"), ("loc", "initial")])
+        # tiago_kb.add_remove_knowledge("at", [temp_ordered_dict], should_add=True)
 
         # handle "human_coming" fact
         tiago_kb.add_remove_knowledge("human_coming", [], should_add=True)

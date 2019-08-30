@@ -9,11 +9,12 @@
 )
 (:init
     (at luke luke_pose)
-    (at rico initial)
+    (at rico wp2)
 
     (linked_to_location luke luke-location)
 
     (scanned_area wp0 wp1)
+    (scanned_area wp1 wp2)
 
     (human_coming)
 
