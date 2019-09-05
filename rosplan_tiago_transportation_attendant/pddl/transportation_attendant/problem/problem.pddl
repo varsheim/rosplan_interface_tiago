@@ -15,9 +15,9 @@
     (empty_robot)
     (not (not_empty_robot))
     (at rico initial)
+    (at john john-location)
+    (at luke luke-location)
 
-    (linked_to_location luke luke-location)
-    (linked_to_location john john-location)
     (linked_to_location glass glass-location)
     (linked_to_location sandwich sandwich-location)
     (linked_to_location spaghetti spaghetti-location)
@@ -25,7 +25,11 @@
 )
 
 (:goal (and
-        (at rico dock)
+        ;(attended john john-location initial)
+        ;(item_on_robot glass)
+        (load_left glass john dock)
+        (attended luke luke-location dock)
+
     )
 )
 

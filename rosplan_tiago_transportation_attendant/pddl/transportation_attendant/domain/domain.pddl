@@ -21,56 +21,61 @@
     :duration (= ?duration 60)
     :condition (and
                (at start (at ?obj ?start))
-               (over all (empty robot)))
+               (over all (empty_robot)))
     :effect (and
             (at end (at ?obj ?destination))
             (at start (not (at ?obj ?start))))
 )
 
-;(:durative-action GO_WITH_ATTENDANCE
-;    :parameters (?obj - robot ?human - human ?start - location ?destination - location)
-;    :duration (= ?duration 200)
-;    :condition (and
-;               (at start (at ?obj ?start))
-;               (over all (not_empty_robot)))
-;    :effect (and
-;            (at end (at ?obj ?destination))
-;            (at end (attended ?human ?start ?destination))
-;            (at start (not (at ?obj ?start))))
-;)
-;
-;(:durative-action GET_LOAD
-;       :parameters (?obj - robot
-;                    ?itemloc - item-location
-;                    ?item - item)
-;       :duration ( = ?duration 15)
-;       :condition (and
-;                  (at start (empty_robot))
-;                  (over all (at ?obj ?itemloc))
-;                  (over all (linked_to_location ?item ?itemloc)))
-;        :effect (and
-;                (at start (not_empty_robot))
-;                (at start (not (empty_robot)))
-;                (at end (item_on_robot ?item)))
-;)
-;
-;(:durative-action LEAVE_LOAD
-;       :parameters (?obj - robot
-;                    ?item - item
-;                    ?human - human
-;                    ?destination - location)
-;       :duration ( = ?duration 15)
-;       :condition (and
-;                  (at start (item_on_robot ?item))
-;                  (at start (not_empty_robot))
-;                  (over all (at ?obj ?destination))
-;                  (over all (at ?human ?destination)))
-;        :effect (and
-;                (at end (not (not_empty_robot)))
-;                (at end (empty_robot))
-;                (at end (not (item_on_robot ?item)))
-;                (at end (at ?item ?destination)))
-;)
+(:durative-action GO_WITH_ATTENDANCE
+    :parameters (?obj - robot
+                 ?human - human
+                 ?start - location
+                 ?destination - location)
+    :duration (= ?duration 200)
+    :condition (and
+               (at start (at ?obj ?start))
+               (at start (at ?human ?start)))
+    :effect (and
+            (at end (at ?obj ?destination))
+            (at end (at ?human ?destination))
+            (at end (attended ?human ?start ?destination))
+            (at start (not (at ?obj ?start)))
+            (at start (not (at ?human ?start))))
+)
+
+(:durative-action GET_LOAD
+       :parameters (?obj - robot
+                    ?itemloc - item-location
+                    ?item - item)
+       :duration ( = ?duration 15)
+       :condition (and
+                  (at start (empty_robot))
+                  (over all (at ?obj ?itemloc))
+                  (over all (linked_to_location ?item ?itemloc)))
+       :effect (and
+               (at start (not_empty_robot))
+               (at start (not (empty_robot)))
+               (at end (item_on_robot ?item)))
+)
+
+(:durative-action LEAVE_LOAD
+       :parameters (?obj - robot
+                    ?item - item
+                    ?human - human
+                    ?destination - location)
+       :duration ( = ?duration 15)
+       :condition (and
+                  (at start (item_on_robot ?item))
+                  (at start (not_empty_robot))
+                  (over all (at ?obj ?destination))
+                  (over all (at ?human ?destination)))
+       :effect (and
+               (at end (not (not_empty_robot)))
+               (at end (empty_robot))
+               (at end (not (item_on_robot ?item)))
+               (at end (load_left ?item ?human ?destination)))
+)
 
 
 ; TODO ACTION
