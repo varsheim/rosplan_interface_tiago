@@ -4,7 +4,7 @@
 
 (:objects
     rico - robot
-    luke john - human
+    luke john alex - human
     glass sandwich spaghetti - item
     initial dock - robot-location
     luke-location john-location - human-location
@@ -28,6 +28,7 @@
         ;(attended john john-location initial)
         ;(item_on_robot glass)
         (load_left glass john dock)
+        (load_left sandwich luke initial)
         (attended luke luke-location dock)
 
     )
