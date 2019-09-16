@@ -113,8 +113,7 @@ class LeaveLoadServer(smach.StateMachine):
                                               'FAILED',
                                               'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:

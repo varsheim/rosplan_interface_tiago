@@ -69,8 +69,6 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "rosplan_go_action_client", ros::init_options::AnonymousName);
     ros::NodeHandle nh("~");
 
-    // create action client here?
-
     // create PDDL action subscriber
     KCL_rosplan::RPGo rpti(nh);
 
