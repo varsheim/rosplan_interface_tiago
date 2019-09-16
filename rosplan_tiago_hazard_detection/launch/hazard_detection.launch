@@ -6,15 +6,20 @@
         <arg name="domain_path"		value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/domain/domain.pddl" />
         <arg name="problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/problem/problem.pddl" />
         <arg name="autom_gen_problem_path"	value="$(find rosplan_tiago_hazard_detection)/pddl/hazard_detection/generated/generated.pddl" />
-        <arg name="data_path" default="$(find rosplan_planning_system)/test/turtlebot_demo/../" />
+        <arg name="data_path" default="$(find rosplan_planning_system)/test/" />
     </include>
-
 
     <!-- actionlib servers -->
     <node name="rosplan_interface_go_server" pkg="rosplan_tiago_hazard_detection" type="go_server" respawn="false" output="screen">
     </node>
 
-    <node name="rosplan_interface_check_server" pkg="rosplan_tiago_hazard_detection" type="check_server" respawn="false" output="screen">
+    <node name="rosplan_interface_check_door_server" pkg="rosplan_tiago_hazard_detection" type="check_door_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_check_light_server" pkg="rosplan_tiago_hazard_detection" type="check_light_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_check_dishwasher_server" pkg="rosplan_tiago_hazard_detection" type="check_dishwasher_server" respawn="false" output="screen">
     </node>
 
     <!-- action clients -->
@@ -25,9 +30,23 @@
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>
 
-    <node name="rosplan_interface_check_client" pkg="rosplan_tiago_hazard_detection" type="RPCheck" respawn="false" output="screen">
+    <node name="rosplan_interface_check_door_client" pkg="rosplan_tiago_hazard_detection" type="RPCheckDoor" respawn="false" output="screen">
         <param name="knowledge_base"		value="rosplan_knowledge_base" />
-        <param name="pddl_action_name"		value="check" />
+        <param name="pddl_action_name"		value="check_door" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_check_light_client" pkg="rosplan_tiago_hazard_detection" type="RPCheckLight" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="check_light" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_check_dishwasher_client" pkg="rosplan_tiago_hazard_detection" type="RPCheckDishwasher" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="check_dishwasher" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>

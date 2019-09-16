@@ -18,8 +18,8 @@ NAVIGATION_MAX_TIME_S = 30
 class Initialize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
-        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
+        # self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
+        # self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],

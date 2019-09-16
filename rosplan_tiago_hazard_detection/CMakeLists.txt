@@ -30,7 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 
 ## Generate actions in the 'action' folder
-add_action_files(FILES Go.action Check.action)
+add_action_files(FILES Go.action CheckDoor.action CheckLight.action CheckDishwasher.action)
 
 catkin_python_setup()
 
@@ -63,7 +63,9 @@ include_directories(
 )
 
 install(PROGRAMS
-	nodes/check_server
+	nodes/check_light_server
+	nodes/check_door_server
+	nodes/check_dishwasher_server
 	nodes/go_server
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 	)
@@ -71,9 +73,17 @@ install(PROGRAMS
 add_executable(RPGo src/RPGo.cpp)
 add_dependencies(RPGo ${catkin_EXPORTED_TARGETS})
 
-add_executable(RPCheck src/RPCheck.cpp)
-add_dependencies(RPCheck ${catkin_EXPORTED_TARGETS})
+add_executable(RPCheckLight src/RPCheckLight.cpp)
+add_dependencies(RPCheckLight ${catkin_EXPORTED_TARGETS})
+
+add_executable(RPCheckDoor src/RPCheckDoor.cpp)
+add_dependencies(RPCheckDoor ${catkin_EXPORTED_TARGETS})
+
+add_executable(RPCheckDishwasher src/RPCheckDishwasher.cpp)
+add_dependencies(RPCheckDishwasher ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(RPGo ${catkin_LIBRARIES})
-target_link_libraries(RPCheck ${catkin_LIBRARIES})
+target_link_libraries(RPCheckDoor ${catkin_LIBRARIES})
+target_link_libraries(RPCheckLight ${catkin_LIBRARIES})
+target_link_libraries(RPCheckDishwasher ${catkin_LIBRARIES})

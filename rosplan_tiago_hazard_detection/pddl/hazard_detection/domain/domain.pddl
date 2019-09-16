@@ -30,7 +30,7 @@
 
 (:durative-action CHECK_DOOR
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
+      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 30) 2))
       :condition
             (and
                 (at start (not_checking))
@@ -48,7 +48,7 @@
 
 (:durative-action CHECK_LIGHT
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
+      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 30) 2))
       :condition (and
             (at start (not_checking))
             (over all (sensor_type ?hazard ?sen))
@@ -64,7 +64,7 @@
 
 (:durative-action CHECK_DISHWASHER
       :parameters (?obj - robot ?hazard - hazard ?hazloc - hazard-location ?sen - sensor)
-      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 8) 2))
+      :duration ( = ?duration (+ (* (is_robot_sensor ?sen) 30) 2))
       :condition (and
             (at start (not_checking))
             (over all (sensor_type ?hazard ?sen))

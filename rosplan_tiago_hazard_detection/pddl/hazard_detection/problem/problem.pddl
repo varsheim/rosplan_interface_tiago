@@ -18,10 +18,10 @@
     (linked door_kitchen door_kitchen_location)
     (linked dishwasher_kitchen dishwasher_kitchen_location)
 
-    (sensor_type door_kitchen door_sensor)
-    (sensor_type door_room door_sensor)
-    (sensor_type lamp_room door_sensor)
-    (sensor_type dishwasher_kitchen door_sensor)
+    (sensor_type door_kitchen lidar)
+    (sensor_type door_room lidar)
+    (sensor_type lamp_room rgbd)
+    (sensor_type dishwasher_kitchen rgbd)
 
     ; point which sensors are on robot's platform (1 or 0)
     (= (is_robot_sensor lidar) 1)

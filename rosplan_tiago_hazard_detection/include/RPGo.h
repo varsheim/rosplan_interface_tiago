@@ -13,7 +13,6 @@
 
 #define ACTION_ADDITION_TIME_S 2
 
-
 typedef actionlib::SimpleActionClient<rosplan_tiago_hazard_detection::GoAction> Client;
 
 namespace KCL_rosplan {

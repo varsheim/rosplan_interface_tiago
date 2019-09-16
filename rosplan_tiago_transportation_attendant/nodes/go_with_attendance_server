@@ -4,10 +4,10 @@ import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadAction
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionGoal
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionFeedback
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionResult
+from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceAction
+from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionGoal
+from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionFeedback
+from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 
 
@@ -27,7 +27,7 @@ class Initialize(smach.State):
         return 'ok'
 
 
-class AskToWait(smach.State):
+class SetNavParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
@@ -59,7 +59,7 @@ class SetHeight(smach.State):
         return 'ok'
 
 
-class AllowToLeave(smach.State):
+class TellAboutStart(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
@@ -69,7 +69,55 @@ class AllowToLeave(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can get item now.')
+        self.speech_controller.tts('You can put item on me now.')
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class Navigate(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('You can put item on me now.')
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class TellAboutStop(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('You can put item on me now.')
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class SetDefaultParams(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('You can put item on me now.')
         rospy.sleep(3)
 
         return 'ok'
@@ -106,7 +154,7 @@ class Finalize(smach.State):
         return 'ok'
 
 
-class LeaveLoadServer(smach.StateMachine):
+class GoWithAttendanceServer(smach.StateMachine):
     def __init__(self):
         smach.StateMachine.__init__(self,
                                     outcomes=['PREEMPTED',
@@ -120,13 +168,13 @@ class LeaveLoadServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'AskToWait',
+                                   transitions={'ok': 'SetNavParams',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal'})
 
-            smach.StateMachine.add('AskToWait',
-                                   AskToWait(),
+            smach.StateMachine.add('SetNavParams',
+                                   SetNavParams(),
                                    transitions={'ok': 'SetHeight',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
@@ -134,20 +182,34 @@ class LeaveLoadServer(smach.StateMachine):
 
             smach.StateMachine.add('SetHeight',
                                    SetHeight(),
-                                   transitions={'ok': 'AllowToLeave',
+                                   transitions={'ok': 'TellAboutStart',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
-            smach.StateMachine.add('AllowToLeave',
-                                   AllowToGet(),
-                                   transitions={'ok': 'DefaultHeight',
+            smach.StateMachine.add('TellAboutStart',
+                                   TellAboutStart(),
+                                   transitions={'ok': 'Navigate',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
-            smach.StateMachine.add('DefaultHeight',
-                                   DefaultHeight(),
+            smach.StateMachine.add('Navigate',
+                                   Navigate(),
+                                   transitions={'ok': 'TellAboutStop',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('TellAboutStop',
+                                   TellAboutStop(),
+                                   transitions={'ok': 'SetDefault',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('SetDefault',
+                                   SetDefault(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
@@ -162,19 +224,19 @@ class LeaveLoadServer(smach.StateMachine):
 
 
 def main():
-    rospy.init_node('leave_load_server')
+    rospy.init_node('go_with_attendance_server')
 
     # Construct state machine
-    sm = LeaveLoadServer()
+    sm = GoWithAttendanceServer()
 
     # # Smach viewer
-    sis = smach_ros.IntrospectionServer('leave_load_server', sm, '/SM_LEAVE_LOAD_SERVER')
+    sis = smach_ros.IntrospectionServer('go_with_attendance_server', sm, '/SM_GO_WITH_ATTENDANCE_SERVER')
     sis.start()
 
     # Construct action server wrapper
     asw = smach_ros.ActionServerWrapper(
-        server_name='leave_load',
-        action_spec=LeaveLoadAction,
+        server_name='go_with_attendance',
+        action_spec=GoWithAttendanceAction,
         wrapped_container=sm,
         succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],

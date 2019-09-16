@@ -4,10 +4,10 @@ import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceAction
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionGoal
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionFeedback
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionResult
+from rosplan_tiago_hazard_detection.msg import CheckDishwasherAction
+from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionGoal
+from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionFeedback
+from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 
 
@@ -15,29 +15,30 @@ class Initialize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
+                             outcomes=['remote', 'robot', 'preemption', 'error'],
                              input_keys=['init_goal'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # take goal, check values, split into pose and params, check if params are okay
-        goal = userdata.init_goal.human
+        goal = userdata.init_goal.sensor
 
-        return 'ok'
+        if goal == "robot":
+            return 'robot'
+
+        return 'remote'
 
 
-class SetNavParams(smach.State):
+class CallHomeSys(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Wait, please!')
         rospy.sleep(3)
 
         return 'ok'
@@ -46,94 +47,54 @@ class SetNavParams(smach.State):
 class SetHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Setting my height!')
         rospy.sleep(3)
 
         return 'ok'
 
 
-class TellAboutStart(smach.State):
+class SetHeadPose(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
         rospy.sleep(3)
 
         return 'ok'
 
 
-class Navigate(smach.State):
+class InspectDishwasher(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
         rospy.sleep(3)
 
         return 'ok'
 
 
-class TellAboutStop(smach.State):
+class ReleaseHead(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
-        rospy.sleep(3)
-
-        return 'ok'
-
-
-class SetDefaultParams(smach.State):
-    def __init__(self):
-        self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
-        smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'])
-
-    def execute(self, userdata):
-        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
-
-        self.speech_controller.tts('You can put item on me now.')
-        rospy.sleep(3)
-
-        return 'ok'
-
-
-class DefaultHeight(smach.State):
-    def __init__(self):
-        self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
-        smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'])
-
-    def execute(self, userdata):
-        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
-
-        self.speech_controller.tts('Bringing back my default height.')
         rospy.sleep(3)
 
         return 'ok'
@@ -148,68 +109,60 @@ class Finalize(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        # prepare some feedback & result
-        # robot approach check may be put here, some distances calculated
+        rospy.sleep(3)
 
         return 'ok'
 
 
-class GetLoadServer(smach.StateMachine):
+class CheckDishwasherServer(smach.StateMachine):
     def __init__(self):
         smach.StateMachine.__init__(self,
                                     outcomes=['PREEMPTED',
                                               'FAILED',
                                               'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'SetNavParams',
+                                   transitions={'remote': 'CallHomeSys',
+                                                'robot': 'SetHeight',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal'})
 
-            smach.StateMachine.add('SetNavParams',
-                                   SetNavParams(),
-                                   transitions={'ok': 'SetHeight',
+            smach.StateMachine.add('CallHomeSys',
+                                   CallHomeSys(),
+                                   transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
             smach.StateMachine.add('SetHeight',
                                    SetHeight(),
-                                   transitions={'ok': 'TellAboutStart',
+                                   transitions={'ok': 'SetHeadPose',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
-            smach.StateMachine.add('TellAboutStart',
-                                   TellAboutStart(),
-                                   transitions={'ok': 'Navigate',
+            smach.StateMachine.add('SetHeadPose',
+                                   SetHeadPose(),
+                                   transitions={'ok': 'InspectDishwasher',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
-            smach.StateMachine.add('Navigate',
-                                   Navigate(),
-                                   transitions={'ok': 'TellAboutStop',
+            smach.StateMachine.add('InspectDishwasher',
+                                   InspectDishwasher(),
+                                   transitions={'ok': 'ReleaseHead',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={})
 
-            smach.StateMachine.add('TellAboutStop',
-                                   TellAboutStop(),
-                                   transitions={'ok': 'SetDefault',
-                                                'preemption': 'PREEMPTED',
-                                                'error': 'FAILED'},
-                                   remapping={})
-
-            smach.StateMachine.add('SetDefault',
-                                   SetDefault(),
+            smach.StateMachine.add('ReleaseHead',
+                                   ReleaseHead(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
@@ -224,19 +177,19 @@ class GetLoadServer(smach.StateMachine):
 
 
 def main():
-    rospy.init_node('get_load_server')
+    rospy.init_node('check_dishwasher_server')
 
     # Construct state machine
-    sm = GetLoadServer()
+    sm = CheckDishwasherServer()
 
     # # Smach viewer
-    sis = smach_ros.IntrospectionServer('get_load_server', sm, '/SM_GET_LOAD_SERVER')
+    sis = smach_ros.IntrospectionServer('check_dishwasher_server', sm, '/SM_CHECK_DISHWASHER_SERVER')
     sis.start()
 
     # Construct action server wrapper
     asw = smach_ros.ActionServerWrapper(
-        server_name='get_load',
-        action_spec=GetLoadAction,
+        server_name='check_dishwasher',
+        action_spec=CheckDishwasherAction,
         wrapped_container=sm,
         succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],

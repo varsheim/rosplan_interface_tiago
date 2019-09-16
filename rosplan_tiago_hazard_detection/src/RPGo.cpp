@@ -44,15 +44,17 @@ namespace KCL_rosplan {
 	    rosplan_tiago_hazard_detection::GoGoal goal;
 
 	    // Fill in goal here
-	    goal.pose = srv.response.pose;
-	    action_client.sendGoal(goal);
-	    action_client.waitForResult(ros::Duration(action_real_duration_s));
+//	    goal.pose = srv.response.pose;
+//	    action_client.sendGoal(goal);
+//	    action_client.waitForResult(ros::Duration(action_real_duration_s));
+//
+//	    if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+//		    // here should be return true;
+//		    // else should be return false; - action preemted or failed
+//	    }
 
-	    if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-		    // here should be return true;
-		    // else should be return false; - action preemted or failed
-	    }
 
+        ros::Duration(5.0).sleep();
 	    // complete the action
 	    ROS_INFO("%s: GO Action completing", node_name_pretty.c_str());
 	    return true;

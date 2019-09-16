@@ -4,7 +4,7 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 setup_args = generate_distutils_setup(
-    packages=['rosplan_tiago_active_human_fall_prevention'],
+    packages=['rosplan_tiago_transportation_attendant'],
     package_dir={'': 'src'}
 )
 
