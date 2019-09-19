@@ -20,7 +20,7 @@
         (at start (at ?obj ?start)))
     :effect (and
         (at end (at ?obj ?destination))
-        (at start (not (at ?obj ?start))))
+        (at end (not (at ?obj ?start))))
 )
 
 ;return false when human is coming - to do that there should b
@@ -36,7 +36,7 @@
         ;return that this area has been checked
         (at end (at ?obj ?destination))
         (at end (scanned_area ?start ?destination))
-        (at start (not (at ?obj ?start))))
+        (at end (not (at ?obj ?start))))
 )
 
 ;at the end of this action fact is added to KB that human is coming

@@ -3,12 +3,14 @@
 import rospy
 import smach
 import smach_ros
+import dynamic_reconfigure.client
 
 from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceAction
 from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionGoal
 from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionFeedback
 from rosplan_tiago_transportation_attendant.msg import GoWithAttendaceActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
+from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 
 
 class Initialize(smach.State):
@@ -30,15 +32,21 @@ class Initialize(smach.State):
 class SetNavParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Wait, please!')
-        rospy.sleep(3)
+        # setting planner params so it the robot moves slowly
+        # params = userdata.set_nav_params_params
+        params = {
+            'max_vel_x': 0.1,
+            'acc_lim_x': 0.05
+        }
+
+        config = self.dynparam_client.update_configuration(params)
 
         return 'ok'
 
@@ -46,14 +54,15 @@ class SetNavParams(smach.State):
 class SetHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
+        self.torso_controller = TiagoTorsoController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Setting my height!')
+        # set height from 0.00 to 0.35
+        self.torso_controller.set_torso_height()
         rospy.sleep(3)
 
         return 'ok'
@@ -69,7 +78,7 @@ class TellAboutStart(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
+        self.speech_controller.tts('I will now start moving. Please hold me.')
         rospy.sleep(3)
 
         return 'ok'
@@ -78,14 +87,13 @@ class TellAboutStart(smach.State):
 class Navigate(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
+        # navigation
         rospy.sleep(3)
 
         return 'ok'
@@ -101,7 +109,7 @@ class TellAboutStop(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
+        self.speech_controller.tts('I have stopped moving. You are free human!')
         rospy.sleep(3)
 
         return 'ok'
@@ -110,15 +118,19 @@ class TellAboutStop(smach.State):
 class SetDefaultParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('You can put item on me now.')
-        rospy.sleep(3)
+        # set default params back
+        params = {
+            'max_vel_x': 0.5,
+            'acc_lim_x': 0.2
+        }
+        config = self.dynparam_client.update_configuration(params)
 
         return 'ok'
 
