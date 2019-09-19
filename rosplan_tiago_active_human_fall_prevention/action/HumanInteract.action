@@ -2,7 +2,7 @@
 string human
 ---
 # Result
-bool is_human_informed
+# bool is_human_informed
 ---
 # feedback
-float32 percent_of_knowledge_given
+# float32 percent_of_knowledge_given

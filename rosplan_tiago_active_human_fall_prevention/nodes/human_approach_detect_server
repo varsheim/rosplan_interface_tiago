@@ -16,10 +16,7 @@ class Initialize(smach.State):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['init_goal'],
-                             output_keys=['init_feedback',
-                                          'init_item',
-                                          'init_params'])
+                             input_keys=['init_goal'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -28,32 +25,22 @@ class Initialize(smach.State):
         # now the server receives only pose
         goal = userdata.init_goal.dummy_goal
 
-        userdata.init_item = goal
-
         rospy.sleep(1)
         return 'ok'
 
 
-class Dummy(smach.State):
+class HumanApproachDetection(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.is_human_coming = False
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['dummy_goal',
-                                         'dummy_params'],
-                             output_keys=['dummy_feedback',
-                                          'dummy_info',
-                                          'dummy_result'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def callback(self, msg):
         self.is_human_coming = True
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
-
-        # robot movement here - using Tiago move_base
-        goal = userdata.dummy_goal
 
         tiago_kb = TiagoKBUpdate()
         rosplan_control = ROSPlanSysControlClient()
@@ -91,10 +78,6 @@ class Dummy(smach.State):
         # rosplan master-blaster here
         rosplan_control.replan_immediately_routine()
 
-        action_result = HumanApproachDetectActionResult()
-        action_result.result.dummy_result = 1
-        userdata.dummy_result = action_result.result
-
         # now exit gently by returning smach ending code
         return 'preemption'
 
@@ -103,25 +86,13 @@ class Finalize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_info'],
-                             output_keys=['final_feedback',
-                                          'final_result'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
-        # action_feedback = HumanApproachDetectActionFeedback()
-        # action_feedback.feedback.percent_complete = 8
-        # userdata.final_feedback = action_feedback.feedback
 
-        action_result = HumanApproachDetectActionResult()
-        action_result.result.dummy_result = 1
-        userdata.final_result = action_result.result
-
-        # robot approach check may be put here, some distances calculated
-        rospy.sleep(2)
         return 'ok'
 
 
@@ -132,40 +103,30 @@ class HumanApproachDetectServer(smach.StateMachine):
                                               'FAILED',
                                               'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Dummy',
+                                   transitions={'ok': 'HumanApproachDetection',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'init_goal': 'sm_goal',
-                                              'init_feedback': 'sm_feedback',
-                                              'init_item': 'sm_goal',
-                                              'init_params': 'sm_params'})
+                                   remapping={'init_goal': 'sm_goal'})
 
-            smach.StateMachine.add('Dummy',
-                                   Dummy(),
+            smach.StateMachine.add('HumanApproachDetection',
+                                   HumanApproachDetection(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'dummy_goal': 'sm_goal',
-                                              'dummy_params': 'sm_params',
-                                              'dummy_feedback': 'sm_feedback',
-                                              'dummy_info': 'sm_info',
-                                              'dummy_result': 'sm_result'})
+                                   remapping={})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
                                                 'ok': 'SM_SUCCEEDED'},
-                                   remapping={'final_info': 'sm_info',
-                                              'final_feedback': 'sm_feedback',
-                                              'final_result': 'sm_result'})
+                                   remapping={})
 
 
 def main():
@@ -186,9 +147,9 @@ def main():
         succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
-        goal_key='sm_goal',
-        feedback_key='sm_feedback',
-        result_key='sm_result')
+        goal_key='sm_goal')
+        # feedback_key='sm_feedback',
+        # result_key='sm_result')
 
     # Run the server in a background thread
     asw.run_server()

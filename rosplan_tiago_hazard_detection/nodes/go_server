@@ -18,13 +18,10 @@ NAVIGATION_MAX_TIME_S = 30
 class Initialize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        # self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
-        # self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
-                             output_keys=['init_feedback',
-                                          'init_goal_pose',
+                             output_keys=['init_goal_pose',
                                           'init_params'])
 
     def execute(self, userdata):
@@ -35,18 +32,45 @@ class Initialize(smach.State):
         pose = userdata.init_goal.pose
         userdata.init_goal_pose = pose
 
-        # run pal_head_manager
-        # bring back default head movement
-        self.pal_head_manager_client.wait_for_server()
-        self.pal_head_manager_client.cancel_all_goals()
+        return 'ok'
+
+
+class SetDefaultParams(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'],
+                             input_keys=['set_def_params'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # setting planner params so the robot moves normally
-        # params = userdata.set_nav_params_params
+        # params = userdata.set_def_params_
         params = {
             'max_vel_x': 0.5,
             'acc_lim_x': 0.2
         }
         config = self.dynparam_client.update_configuration(params)
+
+        return 'ok'
+
+
+class ReleaseHead(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # run pal_head_manager
+        # bring back default head movement
+        self.pal_head_manager_client.wait_for_server()
+        self.pal_head_manager_client.cancel_all_goals()
 
         return 'ok'
 
@@ -61,11 +85,7 @@ class Navigate(smach.State):
 
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['nav_goal_pose',
-                                         'nav_params'],
-                             output_keys=['nav_feedback',
-                                          'nav_actual_pose',
-                                          'nav_result'])
+                             input_keys=['nav_goal_pose'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -84,19 +104,19 @@ class Navigate(smach.State):
         # start moving
         client.send_goal(goal, self.move_base_done_cb, self.move_base_active_cb, self.move_base_feedback_cb)
 
-        action_feedback = GoActionFeedback()
-        action_result = GoActionResult()
-        action_result.result.is_goal_accomplished = False
-        userdata.nav_result = action_result.result
+        # action_feedback = GoActionFeedback()
+        # action_result = GoActionResult()
+        # action_result.result.is_goal_accomplished = False
+        # userdata.nav_result = action_result.result
 
         start_time = rospy.Time.now()
 
         self.is_goal_achieved = False
         while self.is_goal_achieved == False:
-            action_feedback.feedback.current_pose = self.current_pose
+            # action_feedback.feedback.current_pose = self.current_pose
 
-            userdata.nav_feedback = action_feedback.feedback
-            userdata.nav_actual_pose = self.current_pose
+            # userdata.nav_feedback = action_feedback.feedback
+            # userdata.nav_actual_pose = self.current_pose
 
             end_time = rospy.Time.now()
             loop_time = end_time - start_time
@@ -131,18 +151,16 @@ class Finalize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_actual_pose'],
-                             output_keys=['final_result'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
-        action_result = GoActionResult()
-        action_result.result.is_goal_accomplished = True
-
-        userdata.final_result = action_result.result
+        # action_result = GoActionResult()
+        # action_result.result.is_goal_accomplished = True
+        #
+        # userdata.final_result = action_result.result
 
         return 'ok'
 
@@ -154,40 +172,46 @@ class GoServer(smach.StateMachine):
                                               'FAILED',
                                               'APPROACHED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Navigate',
+                                   transitions={'ok': 'ReleaseHead',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
-                                              'init_feedback': 'sm_feedback',
                                               'init_goal_pose': 'sm_goal_pose',
                                               'init_params': 'sm_params'})
+
+            smach.StateMachine.add('ReleaseHead',
+                                   ReleaseHead(),
+                                   transitions={'ok': 'SetDefaultParams',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('SetDefaultParams',
+                                   SetDefaultParams(),
+                                   transitions={'ok': 'Navigate',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'set_def_params': 'sm_params'})
 
             smach.StateMachine.add('Navigate',
                                    Navigate(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'nav_goal_pose': 'sm_goal_pose',
-                                              'nav_params': 'sm_params',
-                                              'nav_feedback': 'sm_feedback',
-                                              'nav_actual_pose': 'sm_actual_pose',
-                                              'nav_result': 'sm_result'})
+                                   remapping={'nav_goal_pose': 'sm_goal_pose'})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
                                                 'ok': 'APPROACHED'},
-                                   remapping={'final_actual_pose': 'sm_actual_pose',
-                                              'final_feedback': 'sm_feedback',
-                                              'final_result': 'sm_result'})
+                                   remapping={})
 
 
 def main():
@@ -208,9 +232,9 @@ def main():
         succeeded_outcomes=['APPROACHED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
-        goal_key='sm_goal',
-        feedback_key='sm_feedback',
-        result_key='sm_result')
+        goal_key='sm_goal')
+        # feedback_key='sm_feedback',
+        # result_key='sm_result')
 
     # Run the server in a background thread
     asw.run_server()

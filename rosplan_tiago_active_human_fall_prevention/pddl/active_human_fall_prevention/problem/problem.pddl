@@ -10,7 +10,7 @@
 
 (:init
     (at rico initial)
-    (at luke luke_pose)
+    (at luke luke-location)
     (not_human_coming)
     (not (human_coming))
 

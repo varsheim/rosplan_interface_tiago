@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import actionlib
 import smach
 import smach_ros
 
@@ -9,6 +10,8 @@ from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionGo
 from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionFeedback
 from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
+from rosplan_tiago_common.tiago_torso_controller import TiagoHeadController
+from pal_common_msgs.msg import *
 
 
 class Initialize(smach.State):
@@ -16,10 +19,7 @@ class Initialize(smach.State):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['init_goal'],
-                             output_keys=['init_feedback',
-                                          'init_item',
-                                          'init_params'])
+                             input_keys=['init_goal'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -28,27 +28,75 @@ class Initialize(smach.State):
         # now the server receives only pose
         goal = userdata.init_goal.human
 
-        userdata.init_item = goal
-
         return 'ok'
 
 
-class Dummy(smach.State):
+class SetHeadPose(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
-        self.speech_controller = TiagoSpeechController()
+        self.head_controller = TiagoHeadController()
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['dummy_goal',
-                                         'dummy_params'],
-                             output_keys=['dummy_feedback',
-                                          'dummy_info'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        # robot movement here - using Tiago move_base
-        goal = userdata.dummy_goal
+        # take control over head movement
+        self.pal_head_manager_client.wait_for_server()
+        pal_head_manager_goal = DisableGoal()
+        pal_head_manager_goal.duration = 0
+        self.pal_head_manager_client.send_goal(pal_head_manager_goal)
+
+        # move head down
+        self.head_controller.tilt_up()
+
+        return 'ok'
+
+
+class SayHello(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('Hi human. Please listen to me!')
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class GatherFacts(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('Let me think what i found.')
+        # query KB here and pass it through STATE output keys
+
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class GiveFacts(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         self.speech_controller.tts('Hi i need to tell you what i found!')
         rospy.sleep(3)
@@ -62,28 +110,53 @@ class Dummy(smach.State):
         return 'ok'
 
 
+class SayBye(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.speech_controller = TiagoSpeechController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        self.speech_controller.tts('Good bye dude.')
+        rospy.sleep(3)
+
+        return 'ok'
+
+
+class ReleaseHead(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
+        self.head_controller = TiagoHeadController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # bring back default head
+        self.pal_head_manager_client.wait_for_server()
+        self.pal_head_manager_client.cancel_all_goals()
+
+        # head up
+        self.head_controller.tilt_forward()
+
+        return 'ok'
+
+
 class Finalize(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['final_info'],
-                             output_keys=['final_feedback',
-                                          'final_result'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # prepare some feedback & result
-        action_feedback = HumanInteractActionFeedback()
-        action_feedback.feedback.percent_of_knowledge_given = 69
-        userdata.final_feedback = action_feedback.feedback
-
-        action_result = HumanInteractActionResult()
-        action_result.result.is_human_informed = 1
-        userdata.final_result = action_result.result
-
-        # robot approach check may be put here, some distances calculated
 
         return 'ok'
 
@@ -95,39 +168,65 @@ class HumanInteractServer(smach.StateMachine):
                                               'FAILED',
                                               'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'Dummy',
+                                   transitions={'ok': 'SetHeadPose',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'init_goal': 'sm_goal',
-                                              'init_feedback': 'sm_feedback',
-                                              'init_item': 'sm_goal',
-                                              'init_params': 'sm_params'})
+                                   remapping={'init_goal': 'sm_goal'})
 
-            smach.StateMachine.add('Dummy',
-                                   Dummy(),
+            smach.StateMachine.add('SetHeadPose',
+                                   SetHeadPose(),
+                                   transitions={'ok': 'SayHello',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('SayHello',
+                                   SayHello(),
+                                   transitions={'ok': 'GatherFacts',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('GatherFacts',
+                                   GatherFacts(),
+                                   transitions={'ok': 'GiveFacts',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('GiveFacts',
+                                   GiveFacts(),
+                                   transitions={'ok': 'SayBye',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('SayBye',
+                                   SayBye(),
+                                   transitions={'ok': 'ReleaseHead',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('ReleaseHead',
+                                   ReleaseHead(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'dummy_goal': 'sm_goal',
-                                              'dummy_params': 'sm_params',
-                                              'dummy_feedback': 'sm_feedback',
-                                              'dummy_info': 'sm_info'})
+                                   remapping={})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
                                                 'ok': 'SM_SUCCEEDED'},
-                                   remapping={'final_info': 'sm_info',
-                                              'final_feedback': 'sm_feedback',
-                                              'final_result': 'sm_result'})
+                                   remapping={})
 
 
 def main():
@@ -148,9 +247,9 @@ def main():
         succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
-        goal_key='sm_goal',
-        feedback_key='sm_feedback',
-        result_key='sm_result')
+        goal_key='sm_goal')
+        # feedback_key='sm_feedback',
+        # result_key='sm_result')
 
     # Run the server in a background thread
     asw.run_server()

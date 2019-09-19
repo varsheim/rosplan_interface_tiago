@@ -8,7 +8,7 @@
     wp0 wp1 wp2 wp3 wp4 wp5 wp6 - waypoint
 )
 (:init
-    (at luke luke_pose)
+    (at luke luke-location)
     (at rico wp2)
 
     (linked_to_location luke luke-location)

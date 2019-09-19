@@ -2,7 +2,7 @@
 geometry_msgs/Pose pose
 ---
 # Result
-bool is_goal_accomplished
+# bool is_goal_accomplished
 ---
 # Feedback
-geometry_msgs/Pose current_pose
+# geometry_msgs/Pose current_pose

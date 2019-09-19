@@ -23,10 +23,8 @@ class Initialize(smach.State):
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
                              input_keys=['init_goal'],
-                             output_keys=['init_feedback',
-                                          'init_params',
-                                          'init_goal_pose',
-                                          'init_result'])
+                             output_keys=['init_params',
+                                          'init_goal_pose'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -38,13 +36,13 @@ class Initialize(smach.State):
 
         # goal_params = userdata.init_goal.params
 
-        action_feeback = GoScanningActionFeedback()
-        action_feeback.feedback.how_many_items_detected = 0
-        userdata.init_feedback = action_feeback.feedback
-
-        action_result = GoScanningActionResult()
-        action_result.result.is_goal_accomplished = False
-        userdata.init_result = action_result.result
+        # action_feeback = GoScanningActionFeedback()
+        # action_feeback.feedback.how_many_items_detected = 0
+        # userdata.init_feedback = action_feeback.feedback
+        #
+        # action_result = GoScanningActionResult()
+        # action_result.result.is_goal_accomplished = False
+        # userdata.init_result = action_result.result
 
         return 'ok'
 
@@ -53,12 +51,32 @@ class SetNavParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
-        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['set_nav_params_params'],
-                             output_keys=['set_nav_params_feedback',
-                                          'set_nav_params_result'])
+                             input_keys=['set_nav_params_params'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # setting planner params so it the robot moves slowly
+        # params = userdata.set_nav_params_params
+        params = {
+            'max_vel_x': 0.1,
+            'acc_lim_x': 0.05
+        }
+
+        config = self.dynparam_client.update_configuration(params)
+
+        return 'ok'
+
+
+class SetHeadPose(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.head_controller = TiagoHeadController()
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
@@ -69,53 +87,33 @@ class SetNavParams(smach.State):
         pal_head_manager_goal.duration = 0
         self.pal_head_manager_client.send_goal(pal_head_manager_goal)
 
-        # setting planner params so it the robot moves slowly
-        # params = userdata.set_nav_params_params
-        params = {
-            'max_vel_x': 0.1,
-            'acc_lim_x': 0.05
-        }
-
-        config = self.dynparam_client.update_configuration(params)
-        # print params
-
-        action_feeback = GoScanningActionFeedback()
-        action_feeback.feedback.how_many_items_detected = 0
-        userdata.set_nav_params_feedback = action_feeback.feedback
-
-        action_result = GoScanningActionResult()
-        action_result.result.is_goal_accomplished = False
-        userdata.set_nav_params_result = action_result.result
+        # move head down
+        self.head_controller.tilt_down()
 
         return 'ok'
 
 
-class ScanArea(smach.State):
+class NavAndScan(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.move_base_status = GoalStatus.PENDING
         self.is_move_base_finished = False
-        self.head_controller = TiagoHeadController()
         self.tiago_kb_query = TiagoKBQuery(is_silent=True)
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'],
-                             input_keys=['scan_area_goal_pose'],
-                             output_keys=['scan_area_feedback',
-                                          'scan_area_result'])
+                             input_keys=['nav_and_scan_goal_pose'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         # robot movement here - using Tiago move_base
-        pose = userdata.scan_area_goal_pose
+        pose = userdata.nav_and_scan_goal_pose
 
         goal = MoveBaseGoal()
         goal.target_pose.pose = pose
         goal.target_pose.header.frame_id = 'map'
         goal.target_pose.header.stamp = rospy.Time.now()
 
-        # move head down
-        self.head_controller.tilt_down()
         # move the robot
         client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
         client.wait_for_server()
@@ -157,15 +155,6 @@ class ScanArea(smach.State):
                                                                                        self.move_base_status))
             return 'error'
 
-        # Prepare feedback & result
-        action_feeback = GoScanningActionFeedback()
-        action_feeback.feedback.how_many_items_detected = 0
-        userdata.scan_area_feedback = action_feeback.feedback
-
-        action_result = GoScanningActionResult()
-        action_result.result.is_goal_accomplished = False
-        userdata.scan_area_result = action_result.result
-
         return 'ok'
 
     def move_base_done_cb(self, status, result):
@@ -173,19 +162,16 @@ class ScanArea(smach.State):
         self.move_base_status = status
 
 
-class Finalize(smach.State):
+class SetDefaultParams(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.dynparam_client = dynamic_reconfigure.client.Client('move_base/PalLocalPlanner')
-        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
-        self.head_controller = TiagoHeadController()
         smach.State.__init__(self,
-                             outcomes=['ok', 'preemption', 'error'],
-                             input_keys=[],
-                             output_keys=['final_result'])
+                             outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
         # set default params back
         params = {
             'max_vel_x': 0.5,
@@ -193,17 +179,40 @@ class Finalize(smach.State):
         }
         config = self.dynparam_client.update_configuration(params)
 
+        return 'ok'
+
+
+class ReleaseHead(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.pal_head_manager_client = actionlib.SimpleActionClient('pal_head_manager/disable', DisableAction)
+        self.head_controller = TiagoHeadController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
         # bring back default head
         self.pal_head_manager_client.wait_for_server()
         self.pal_head_manager_client.cancel_all_goals()
 
-        # HEAD UP
+        # head up
         self.head_controller.tilt_forward()
-        # prepare some result
-        action_result = GoScanningActionResult()
-        action_result.result.is_goal_accomplished = True
-        userdata.final_result = action_result.result
 
+        return 'ok'
+
+
+class Finalize(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # prep some result?
         return 'ok'
 
 
@@ -214,8 +223,7 @@ class GoScanningServer(smach.StateMachine):
                                               'FAILED',
                                               'SM_SUCCEEDED'],
                                     input_keys=['sm_goal'],
-                                    output_keys=['sm_feedback',
-                                                 'sm_result'])
+                                    output_keys=[])
 
         # Fill the machine here
         with self:
@@ -225,34 +233,50 @@ class GoScanningServer(smach.StateMachine):
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
-                                              'init_feedback': 'sm_feedback',
                                               'init_params': 'sm_params',
-                                              'init_goal_pose': 'sm_goal_pose',
-                                              'init_result': 'sm_result'})
+                                              'init_goal_pose': 'sm_goal_pose'})
 
             smach.StateMachine.add('SetNavParams',
                                    SetNavParams(),
-                                   transitions={'ok': 'ScanArea',
+                                   transitions={'ok': 'SetHeadPose',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'set_nav_params_params': 'sm_params',
-                                              'set_nav_params_feedback': 'sm_feedback',
-                                              'set_nav_params_result': 'sm_result'})
-            smach.StateMachine.add('ScanArea',
-                                   ScanArea(),
+                                   remapping={'set_nav_params_params': 'sm_params'})
+
+            smach.StateMachine.add('SetHeadPose',
+                                   SetHeadPose(),
+                                   transitions={'ok': 'NavAndScan',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('NavAndScan',
+                                   NavAndScan(),
+                                   transitions={'ok': 'SetDefaultParams',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={'nav_and_scan_goal_pose': 'sm_goal_pose'})
+
+            smach.StateMachine.add('SetDefaultParams',
+                                   SetDefaultParams(),
+                                   transitions={'ok': 'ReleaseHead',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
+
+            smach.StateMachine.add('ReleaseHead',
+                                   ReleaseHead(),
                                    transitions={'ok': 'Finalize',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
-                                   remapping={'scan_area_goal_pose': 'sm_goal_pose',
-                                              'scan_area_feedback': 'sm_feedback',
-                                              'scan_area_result': 'sm_result'})
+                                   remapping={})
 
             smach.StateMachine.add('Finalize',
                                    Finalize(),
                                    transitions={'preemption': 'PREEMPTED',
                                                 'error': 'FAILED',
                                                 'ok': 'SM_SUCCEEDED'},
-                                   remapping={'final_result': 'sm_result'})
+                                   remapping={})
 
 
 def main():
@@ -273,9 +297,9 @@ def main():
         succeeded_outcomes=['SM_SUCCEEDED'],
         aborted_outcomes=['FAILED'],
         preempted_outcomes=['PREEMPTED'],
-        goal_key='sm_goal',
-        feedback_key='sm_feedback',
-        result_key='sm_result')
+        goal_key='sm_goal')
+        # feedback_key='sm_feedback',
+        # result_key='sm_result')
 
     # Run the server in a background thread
     asw.run_server()

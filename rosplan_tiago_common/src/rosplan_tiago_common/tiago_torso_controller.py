@@ -38,6 +38,10 @@ class TiagoHeadController:
         target_point = Point(1.0, 0.0, 0.1)
         self.__send_goal(self.pointing_frame, self.pointing_axis, target_point, min_time)
 
+    def tilt_up(self, min_time=2.0):
+        target_point = Point(1.0, 0.0, 1.75)
+        self.__send_goal(self.pointing_frame, self.pointing_axis, target_point, min_time)
+
     def tilt_forward(self, min_time=2.0):
         target_point = Point(1.0, 0.0, 1.25)
         self.__send_goal(self.pointing_frame, self.pointing_axis, target_point, min_time)
