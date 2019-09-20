@@ -14,7 +14,7 @@ from rosplan_tiago_common.tiago_torso_controller import TiagoHeadController
 from rosplan_tiago_common.tiago_kb import TiagoKBQuery
 
 
-NAVIGATION_MAX_TIME_S = 120
+NAVIGATION_MAX_TIME_S = 200
 
 
 class Initialize(smach.State):

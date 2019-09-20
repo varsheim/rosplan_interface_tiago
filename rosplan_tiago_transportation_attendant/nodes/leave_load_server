@@ -9,6 +9,7 @@ from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionGoal
 from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionFeedback
 from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
+from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 
 
 class Initialize(smach.State):
@@ -37,7 +38,7 @@ class AskToWait(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Wait, please!')
+        self.speech_controller.tts('Wait, i will help you take your item!')
         rospy.sleep(3)
 
         return 'ok'
@@ -47,13 +48,15 @@ class SetHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
+        self.torso_controller = TiagoTorsoController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Setting my height!')
+        # self.speech_controller.tts('Setting my height!')
+        self.torso_controller.set_torso_height(0.1)
         rospy.sleep(3)
 
         return 'ok'
@@ -70,7 +73,7 @@ class AllowToLeave(smach.State):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         self.speech_controller.tts('You can get item now.')
-        rospy.sleep(3)
+        rospy.sleep(8)
 
         return 'ok'
 
@@ -79,13 +82,15 @@ class DefaultHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
+        self.torso_controller = TiagoTorsoController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Bringing back my default height.')
+        self.speech_controller.tts('Moving up!.')
+        self.torso_controller.set_torso_height(0.2)
         rospy.sleep(3)
 
         return 'ok'
@@ -139,7 +144,7 @@ class LeaveLoadServer(smach.StateMachine):
                                    remapping={})
 
             smach.StateMachine.add('AllowToLeave',
-                                   AllowToGet(),
+                                   AllowToLeave(),
                                    transitions={'ok': 'DefaultHeight',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},

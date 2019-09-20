@@ -1,0 +1,40 @@
+luke:
+    name: Luke
+    tagnames:
+      - age
+      - height
+      - requires_attendace
+    tags:
+      - '24'
+      - '175'
+      - 'False'
+john:
+    name: John
+    tagnames:
+      - age
+      - height
+      - requires_attendace
+    tags:
+      - '70'
+      - '160'
+      - 'True'
+alex:
+    name: Alex
+    tagnames:
+      - age
+      - height
+      - requires_attendace
+    tags:
+      - '80'
+      - '168'
+      - 'True'
+david:
+    name: David
+    tagnames:
+      - age
+      - height
+      - requires_attendace
+    tags:
+      - '25'
+      - '190'
+      - 'True'

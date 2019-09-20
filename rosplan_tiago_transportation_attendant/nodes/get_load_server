@@ -9,6 +9,7 @@ from rosplan_tiago_transportation_attendant.msg import GetLoadActionGoal
 from rosplan_tiago_transportation_attendant.msg import GetLoadActionFeedback
 from rosplan_tiago_transportation_attendant.msg import GetLoadActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
+from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 
 
 class Initialize(smach.State):
@@ -37,8 +38,8 @@ class AskToWait(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Wait, please!')
-        rospy.sleep(3)
+        self.speech_controller.tts('Wait, let me prepare human.')
+        rospy.sleep(2)
 
         return 'ok'
 
@@ -47,14 +48,16 @@ class SetHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
+        self.torso_controller = TiagoTorsoController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Setting my height!')
-        rospy.sleep(3)
+        # self.speech_controller.tts('Setting my height!')
+        self.torso_controller.set_torso_height(0.1)
+        rospy.sleep(2)
 
         return 'ok'
 
@@ -70,7 +73,7 @@ class AllowToGet(smach.State):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         self.speech_controller.tts('You can put item on me now.')
-        rospy.sleep(3)
+        rospy.sleep(8)
 
         return 'ok'
 
@@ -79,6 +82,7 @@ class DefaultHeight(smach.State):
     def __init__(self):
         self.node_name = "(" + rospy.get_name() + ")"
         self.speech_controller = TiagoSpeechController()
+        self.torso_controller = TiagoTorsoController()
         smach.State.__init__(self,
                              outcomes=['ok', 'preemption', 'error'])
 
@@ -86,7 +90,8 @@ class DefaultHeight(smach.State):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
         self.speech_controller.tts('Bringing back my default height.')
-        rospy.sleep(3)
+        # self.torso_controller.set_torso_height(0.2)
+        rospy.sleep(2)
 
         return 'ok'
 

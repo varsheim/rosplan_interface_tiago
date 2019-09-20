@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 	rospy
 	std_msgs
 	geometry_msgs
+	people_msgs
 	message_generation
 	rospy_message_converter
 	tf2
@@ -18,17 +19,19 @@ find_package(Boost REQUIRED COMPONENTS)
 
 ## Generate services in the 'srv' folder
 add_service_files(
-  FILES
-  GetLocation.srv
+	FILES
+	GetLocation.srv
+	GetHuman.srv
 )
 
 catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
-  DEPENDENCIES
-  std_msgs
-  geometry_msgs
+  	DEPENDENCIES
+  	std_msgs
+  	geometry_msgs
+	people_msgs
 )
 
 
@@ -38,13 +41,13 @@ catkin_package(
 
 
 include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
+	include
+	${catkin_INCLUDE_DIRS}
 )
 
 install(PROGRAMS
 	nodes/location_name_server
-	nodes/location_name_server_yml
+	nodes/people_server
 	nodes/location_marker_publisher
 	nodes/pose_saver
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -1,0 +1,4 @@
+# service for getting person parameters
+string human_name
+---
+people_msgs/Person human

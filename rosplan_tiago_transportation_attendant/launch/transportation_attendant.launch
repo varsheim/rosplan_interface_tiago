@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- ROSPlan -->
+    <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+        <arg name="domain_path"		value="$(find rosplan_tiago_transportation_attendant)/pddl/transportation_attendant/domain/domain.pddl" />
+        <arg name="problem_path"	value="$(find rosplan_tiago_transportation_attendant)/pddl/transportation_attendant/problem/problem.pddl" />
+        <arg name="autom_gen_problem_path"	value="$(find rosplan_tiago_transportation_attendant)/pddl/transportation_attendant/generated/generated.pddl" />
+        <arg name="data_path" default="$(find rosplan_planning_system)/test/" />
+    </include>
+
+
+    <!-- actionlib servers -->
+    <node name="rosplan_interface_go_server" pkg="rosplan_tiago_hazard_detection" type="go_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_get_load_server" pkg="rosplan_tiago_transportation_attendant" type="get_load_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_go_with_attendance_server" pkg="rosplan_tiago_transportation_attendant" type="go_with_attendance_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_leave_load_server" pkg="rosplan_tiago_transportation_attendant" type="leave_load_server" respawn="false" output="screen">
+    </node>
+
+    <!-- action clients -->
+    <node name="rosplan_interface_go_client" pkg="rosplan_tiago_hazard_detection" type="RPGo" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="go" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_get_load_client" pkg="rosplan_tiago_transportation_attendant" type="RPGetLoad" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="get_load" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_go_with_attendance_client" pkg="rosplan_tiago_transportation_attendant" type="RPGoWithAttendance" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="go_with_attendance" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <node name="rosplan_interface_leave_load_client" pkg="rosplan_tiago_transportation_attendant" type="RPLeaveLoad" respawn="false" output="screen">
+        <param name="knowledge_base"		value="rosplan_knowledge_base" />
+        <param name="pddl_action_name"		value="leave_load" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+
+    <!-- params servers -->
+    <node name="rosplan_interface_location_name_server" pkg="rosplan_tiago_params" type="location_name_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_people_server" pkg="rosplan_tiago_params" type="people_server" respawn="false" output="screen">
+    </node>
+
+    <!-- common -->
+    <node name="rosplan_service_controller_server" pkg="rosplan_tiago_common" type="rosplan_sys_control" respawn="false" output="screen">
+    </node>
+</launch>

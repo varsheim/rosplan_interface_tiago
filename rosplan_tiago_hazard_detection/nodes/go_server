@@ -10,9 +10,10 @@ from rosplan_tiago_hazard_detection.msg import GoAction, GoActionGoal, GoActionF
 from actionlib_msgs.msg import GoalStatus
 from pal_common_msgs.msg import *
 from move_base_msgs.msg import *
+from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 
 
-NAVIGATION_MAX_TIME_S = 30
+NAVIGATION_MAX_TIME_S = 40
 
 
 class Initialize(smach.State):
@@ -31,6 +32,23 @@ class Initialize(smach.State):
         # now the server receives only pose
         pose = userdata.init_goal.pose
         userdata.init_goal_pose = pose
+
+        return 'ok'
+
+
+class SetDefaultHeight(smach.State):
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+        self.torso_controller = TiagoTorsoController()
+        smach.State.__init__(self,
+                             outcomes=['ok', 'preemption', 'error'])
+
+    def execute(self, userdata):
+        rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
+
+        # set height from 0.00 to 0.35
+        self.torso_controller.set_torso_height(0.2)
+        rospy.sleep(2)
 
         return 'ok'
 
@@ -178,12 +196,19 @@ class GoServer(smach.StateMachine):
         with self:
             smach.StateMachine.add('Initialize',
                                    Initialize(),
-                                   transitions={'ok': 'ReleaseHead',
+                                   transitions={'ok': 'SetDefaultHeight',
                                                 'preemption': 'PREEMPTED',
                                                 'error': 'FAILED'},
                                    remapping={'init_goal': 'sm_goal',
                                               'init_goal_pose': 'sm_goal_pose',
                                               'init_params': 'sm_params'})
+
+            smach.StateMachine.add('SetDefaultHeight',
+                                   SetDefaultHeight(),
+                                   transitions={'ok': 'ReleaseHead',
+                                                'preemption': 'PREEMPTED',
+                                                'error': 'FAILED'},
+                                   remapping={})
 
             smach.StateMachine.add('ReleaseHead',
                                    ReleaseHead(),

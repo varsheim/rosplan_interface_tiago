@@ -6,6 +6,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <rosplan_tiago_transportation_attendant/GoWithAttendanceAction.h>
 #include <rosplan_tiago_params/GetLocation.h>
+#include <rosplan_tiago_params/GetHuman.h>
+#include <people_msgs/Person.h>
 
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPGOWITHATTENDANCE_H
@@ -22,8 +24,10 @@ namespace KCL_rosplan {
 
     private:
         Client action_client{"go_with_attendance", true};
-        ros::ServiceClient service_client;
+        ros::ServiceClient service_client_location, service_client_human;
+        people_msgs::Person human;
         std::string current_destination;
+	    std::string current_human_name;
         std::string node_name;
         std::string node_name_pretty;
     public:

@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
         roscpp
         rosplan_dispatch_msgs
         rosplan_knowledge_msgs
+		people_msgs
         rosplan_planning_system
         rosplan_tiago_params
         rosplan_tiago_common
@@ -34,7 +35,7 @@ add_action_files(FILES GoWithAttendance.action GetLoad.action LeaveLoad.action)
 catkin_python_setup()
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
+generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs people_msgs)
 
 catkin_package(
         LIBRARIES ${PROJECT_NAME}
@@ -51,6 +52,7 @@ catkin_package(
         genmsg
         actionlib
         actionlib_msgs
+		people_msgs
         tf
         DEPENDS
 )

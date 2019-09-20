@@ -5,6 +5,7 @@ namespace KCL_rosplan {
     /* constructor */
     RPGetLoad::RPGetLoad(ros::NodeHandle &nh) {
         // perform setup
+	    service_client_human = nh.serviceClient<rosplan_tiago_params::GetHuman>("/people_service");
         node_name = ros::this_node::getName();
         node_name_pretty = '(' + node_name + ')';
     }
@@ -19,17 +20,30 @@ namespace KCL_rosplan {
 
         // log available parameters
         for (auto it = begin (action_parameters); it != end (action_parameters); ++it) {
-            // "destination" is defined in pddl domain as param name
+            // "human" is defined in pddl domain as param name
             if (strcmp(it->key.c_str(), "human") == 0) {
-                human_name = it->value.c_str();
+                current_human_name = it->value.c_str();
             }
+        }
+
+        // Get the actual values by calling the service
+        // Fill the srv message first
+        rosplan_tiago_params::GetHuman srv_human;
+        srv_human.request.human_name = current_human_name;
+
+        if (service_client_human.call(srv_human)) {
+            ROS_INFO("%s: Got human info of %s", node_name_pretty.c_str(), current_human_name.c_str());
+        }
+        else {
+            ROS_ERROR("%s: Failed to call service people_service", node_name_pretty.c_str());
+            return false;
         }
 
         action_client.waitForServer();
         rosplan_tiago_transportation_attendant::GetLoadGoal goal;
 
         // Fill in goal here
-        goal.human = human_name;
+        goal.human = srv_human.response.human;
         action_client.sendGoal(goal);
         action_client.waitForResult(ros::Duration(action_real_duration_s));
         if (action_client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {

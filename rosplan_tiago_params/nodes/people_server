@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import rospy
+import yaml
+import rospkg
+from geometry_msgs.msg import Pose, Point, Quaternion
+from rosplan_tiago_params.srv import *
+from rospy_message_converter import message_converter
+from people_msgs.msg import Person
+
+
+CONFIG_RELATIVE_PATH = '/config/people.yml'
+PKG_NAME = 'rosplan_tiago_params'
+
+
+class PeopleServer:
+    def __init__(self):
+        self.node_name = "(" + rospy.get_name() + ")"
+
+        # service for query data from yml
+        self.srv = rospy.Service('people_service', GetHuman, self.get_human_from_yml)
+        rospy.loginfo('{} Ready to get human info by its name (plan value)'.format(self.node_name))
+
+        # path to yml file
+        rospack = rospkg.RosPack()
+        rospack_path = rospack.get_path(PKG_NAME)
+        self.yaml_file_path = rospack_path + CONFIG_RELATIVE_PATH
+
+    def get_human_from_yml(self, msg):
+        is_human_name_found = False
+
+        human = Person()
+
+        with open(self.yaml_file_path, 'r') as yaml_file:
+            cur_yaml = yaml.safe_load(yaml_file)
+            if cur_yaml is None:
+                cur_yaml = {}
+
+            for named_pose_key, named_pose_value in cur_yaml.items():
+                if named_pose_key == msg.human_name:
+                    rospy.loginfo('{} Got matching human name!'.format(self.node_name))
+                    is_human_name_found = True
+
+                    human_dict = named_pose_value
+                    human = message_converter.convert_dictionary_to_ros_message('people_msgs/Person', human_dict)
+                    break
+
+            if not is_human_name_found:
+                rospy.logerr('{} No matching location name - returning empty person msg'.format(self.node_name))
+
+            return GetHumanResponse(human)
+
+
+if __name__ == '__main__':
+    rospy.init_node('people_service')
+    PeopleServer()
+    rospy.spin()

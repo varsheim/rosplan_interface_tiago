@@ -5,6 +5,8 @@
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
 #include <rosplan_tiago_transportation_attendant/GetLoadAction.h>
+#include <rosplan_tiago_params/GetHuman.h>
+#include <people_msgs/Person.h>
 
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPGETLOAD_H
@@ -21,8 +23,9 @@ namespace KCL_rosplan {
 
     private:
         Client action_client{"get_load", true};
-        ros::ServiceClient service_client;
-        std::string human_name;
+        ros::ServiceClient service_client_human;
+        std::string current_human_name;
+        people_msgs::Person human;
         std::string node_name;
         std::string node_name_pretty;
     public:
