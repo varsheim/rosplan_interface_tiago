@@ -3,7 +3,7 @@
 (:objects
     door_kitchen door_room lamp_room dishwasher_kitchen - hazard
     rico - robot
-    door_kitchen_location door_room_location lamp_room_location dishwasher_kitchen_location - hazard-location
+    door_kitchen_location door_room_location lamp_room_location dishwasher_kitchen_location wp0 wp1 wp2 wp3 - hazard-location
     initial - robot-location
     lidar rgbd ultrasonic - robot-sensor
     door_sensor window_sensor - home-system-sensor
@@ -14,10 +14,10 @@
 
 
 
-    (linked lamp_room lamp_room_location)
-    (linked door_room door_room_location)
-    (linked door_kitchen door_kitchen_location)
-    (linked dishwasher_kitchen dishwasher_kitchen_location)
+    (linked lamp_room wp1)
+    (linked door_room wp2)
+    (linked door_kitchen wp3)
+    (linked dishwasher_kitchen wp0)
 
     (sensor_type door_kitchen lidar)
     (sensor_type door_room lidar)

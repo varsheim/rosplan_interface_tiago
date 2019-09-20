@@ -51,4 +51,14 @@
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>
 
+    <!-- params servers -->
+    <node name="rosplan_interface_location_name_server" pkg="rosplan_tiago_params" type="location_name_server" respawn="false" output="screen">
+    </node>
+
+    <node name="rosplan_interface_people_server" pkg="rosplan_tiago_params" type="people_server" respawn="false" output="screen">
+    </node>
+
+    <!-- common -->
+    <node name="rosplan_service_controller_server" pkg="rosplan_tiago_common" type="rosplan_sys_control" respawn="false" output="screen">
+    </node>
 </launch>
