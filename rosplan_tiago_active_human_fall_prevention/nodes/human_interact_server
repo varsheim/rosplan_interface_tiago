@@ -83,7 +83,7 @@ class GatherFacts(smach.State):
         self.speech_controller.tts('Let me think what i found.')
         # query KB here and pass it through STATE output keys
 
-        rospy.sleep(3)
+        rospy.sleep(4)
 
         return 'ok'
 
@@ -98,14 +98,12 @@ class GiveFacts(smach.State):
     def execute(self, userdata):
         rospy.loginfo('{}: Executing state: {}'.format(self.node_name, self.__class__.__name__))
 
-        self.speech_controller.tts('Hi i need to tell you what i found!')
-        rospy.sleep(3)
         self.speech_controller.tts('Item one at position x')
         rospy.sleep(3)
         self.speech_controller.tts('Item two at position y')
         rospy.sleep(3)
         self.speech_controller.tts('That is all, human. Take care')
-        rospy.sleep(3)
+        rospy.sleep(4)
 
         return 'ok'
 

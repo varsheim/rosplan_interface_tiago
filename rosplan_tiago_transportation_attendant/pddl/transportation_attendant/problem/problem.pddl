@@ -23,6 +23,7 @@
 
 (:goal (and
     (load_left glass john wp0)
+    (load_left sandwich luke wp1)
     )
 )
 
