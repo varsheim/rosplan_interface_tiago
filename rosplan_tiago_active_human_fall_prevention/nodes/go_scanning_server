@@ -6,7 +6,7 @@ import smach_ros
 import actionlib
 import dynamic_reconfigure.client
 
-from rosplan_tiago_active_human_fall_prevention.msg import GoScanningAction, GoScanningActionGoal, GoScanningActionFeedback, GoScanningActionResult
+from rosplan_tiago_scenarios_msgs.msg import GoScanningAction, GoScanningActionGoal, GoScanningActionFeedback, GoScanningActionResult
 from move_base_msgs.msg import *
 from actionlib_msgs.msg import GoalStatus
 from pal_common_msgs.msg import *

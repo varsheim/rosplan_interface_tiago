@@ -2,7 +2,7 @@ import rospy
 
 from rosplan_dispatch_msgs.srv import *
 from std_srvs.srv import *
-from rosplan_tiago_common.msg import ROSPlanService
+from rosplan_tiago_core_msgs.msg import ROSPlanService
 
 
 class ROSPlanSysControlClient:

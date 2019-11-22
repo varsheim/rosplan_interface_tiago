@@ -4,8 +4,8 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_tiago_transportation_attendant/GetLoadAction.h>
-#include <rosplan_tiago_params/GetHuman.h>
+#include <rosplan_tiago_scenarios_msgs/GetLoadAction.h>
+#include <rosplan_tiago_core_msgs/GetHuman.h>
 #include <people_msgs/Person.h>
 
 
@@ -14,7 +14,7 @@
 
 #define ACTION_ADDITION_TIME_S 2
 
-typedef actionlib::SimpleActionClient<rosplan_tiago_transportation_attendant::GetLoadAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_tiago_scenarios_msgs::GetLoadAction> Client;
 
 namespace KCL_rosplan {
 

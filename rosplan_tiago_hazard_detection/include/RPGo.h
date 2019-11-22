@@ -4,16 +4,16 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_tiago_hazard_detection/GoAction.h>
+#include <rosplan_tiago_scenarios_msgs/GoAction.h>
 #include <geometry_msgs/Pose.h>
-#include <rosplan_tiago_params/GetLocation.h>
+#include <rosplan_tiago_core_msgs/GetLocation.h>
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPGO_H
 #define ROSPLAN_INTERFACE_TIAGO_RPGO_H
 
 #define ACTION_ADDITION_TIME_S 2
 
-typedef actionlib::SimpleActionClient<rosplan_tiago_hazard_detection::GoAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_tiago_scenarios_msgs::GoAction> Client;
 
 namespace KCL_rosplan {
 

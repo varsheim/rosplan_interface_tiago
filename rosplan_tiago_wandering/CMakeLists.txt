@@ -20,7 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	std_srvs
 	tf
-	genmsg
+	rosplan_tiago_scenarios_msgs
+	rosplan_tiago_core_msgs
 	actionlib
 	actionlib_msgs
 	smach
@@ -29,13 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS thread)
 
-## Generate actions in the 'action' folder
-add_action_files(FILES GetItem.action GiveItem.action Greet.action)
-
 catkin_python_setup()
-
-## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES actionlib_msgs geometry_msgs)
 
 catkin_package(
 	LIBRARIES ${PROJECT_NAME}
@@ -49,7 +44,8 @@ catkin_package(
 	rosplan_dispatch_msgs
 	rosplan_knowledge_msgs
 	rosplan_planning_system
-	genmsg
+	rosplan_tiago_scenarios_msgs
+	rosplan_tiago_core_msgs
 	actionlib
 	actionlib_msgs
 	tf

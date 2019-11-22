@@ -6,39 +6,21 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	rospy
-	std_msgs
+	rospy_message_converter
+	rosplan_tiago_core_msgs
 	geometry_msgs
 	people_msgs
-	message_generation
-	rospy_message_converter
 	tf2
 	roslib
 )
 
 find_package(Boost REQUIRED COMPONENTS)
 
-## Generate services in the 'srv' folder
-add_service_files(
-	FILES
-	GetLocation.srv
-	GetHuman.srv
-)
-
 catkin_python_setup()
-
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-  	DEPENDENCIES
-  	std_msgs
-  	geometry_msgs
-	people_msgs
-)
-
 
 catkin_package(
 
 )
-
 
 include_directories(
 	include
@@ -51,4 +33,4 @@ install(PROGRAMS
 	nodes/location_marker_publisher
 	nodes/pose_saver
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-	)
+)

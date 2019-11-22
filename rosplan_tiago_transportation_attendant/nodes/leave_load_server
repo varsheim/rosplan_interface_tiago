@@ -4,10 +4,10 @@ import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadAction
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionGoal
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionFeedback
-from rosplan_tiago_transportation_attendant.msg import LeaveLoadActionResult
+from rosplan_tiago_scenarios_msgs.msg import LeaveLoadAction
+from rosplan_tiago_scenarios_msgs.msg import LeaveLoadActionGoal
+from rosplan_tiago_scenarios_msgs.msg import LeaveLoadActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import LeaveLoadActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 

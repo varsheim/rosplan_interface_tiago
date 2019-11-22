@@ -4,10 +4,10 @@ import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_hazard_detection.msg import CheckDoorAction
-from rosplan_tiago_hazard_detection.msg import CheckDoorActionGoal
-from rosplan_tiago_hazard_detection.msg import CheckDoorActionFeedback
-from rosplan_tiago_hazard_detection.msg import CheckDoorActionResult
+from rosplan_tiago_scenarios_msgs.msg import CheckDoorAction
+from rosplan_tiago_scenarios_msgs.msg import CheckDoorActionGoal
+from rosplan_tiago_scenarios_msgs.msg import CheckDoorActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import CheckDoorActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 
 

@@ -26,7 +26,7 @@ namespace KCL_rosplan {
         client.waitForServer();
 
         // Fill in goal here
-        rosplan_tiago_hazard_detection::CheckDishwasherGoal goal;
+        rosplan_tiago_scenarios_msgs::CheckDishwasherGoal goal;
         goal.sensor = "robot";
         client.sendGoal(goal);
         client.waitForResult(ros::Duration(action_real_duration_s));

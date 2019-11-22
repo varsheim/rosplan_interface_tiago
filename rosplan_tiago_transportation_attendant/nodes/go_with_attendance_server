@@ -8,10 +8,10 @@ import actionlib
 
 from move_base_msgs.msg import *
 from actionlib_msgs.msg import GoalStatus
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendanceAction
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendanceActionGoal
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendanceActionFeedback
-from rosplan_tiago_transportation_attendant.msg import GoWithAttendanceActionResult
+from rosplan_tiago_scenarios_msgs.msg import GoWithAttendanceAction
+from rosplan_tiago_scenarios_msgs.msg import GoWithAttendanceActionGoal
+from rosplan_tiago_scenarios_msgs.msg import GoWithAttendanceActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import GoWithAttendanceActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 from rosplan_tiago_common.tiago_torso_controller import TiagoTorsoController
 

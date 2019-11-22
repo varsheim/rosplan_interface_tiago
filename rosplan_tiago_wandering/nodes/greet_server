@@ -6,10 +6,10 @@ import smach_ros
 
 from geometry_msgs.msg import Pose
 
-from rosplan_tiago_wandering.msg import GreetAction
-from rosplan_tiago_wandering.msg import GreetActionGoal
-from rosplan_tiago_wandering.msg import GreetActionFeedback
-from rosplan_tiago_wandering.msg import GreetActionResult
+from rosplan_tiago_scenarios_msgs.msg import GreetAction
+from rosplan_tiago_scenarios_msgs.msg import GreetActionGoal
+from rosplan_tiago_scenarios_msgs.msg import GreetActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import GreetActionResult
 
 from rosplan_tiago_common.tiago_utils import move_base_set_goal
 

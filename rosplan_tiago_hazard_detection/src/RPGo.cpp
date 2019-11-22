@@ -7,7 +7,7 @@ namespace KCL_rosplan {
     /* constructor */
     RPGo::RPGo(ros::NodeHandle &nh) {
         // Create service client for getting location params
-        service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
+        service_client = nh.serviceClient<rosplan_tiago_core_msgs::GetLocation>("/location_name_service");
 	    node_name = ros::this_node::getName();
 	    node_name_pretty = '(' + node_name + ')';
     }
@@ -29,7 +29,7 @@ namespace KCL_rosplan {
 
         // Get the actual values by calling the service
         // Fill the srv message first
-        rosplan_tiago_params::GetLocation srv;
+	    rosplan_tiago_core_msgs::GetLocation srv;
         srv.request.location = current_destination;
 
 	    if (service_client.call(srv)) {
@@ -41,7 +41,7 @@ namespace KCL_rosplan {
 	    }
 
 	    action_client.waitForServer();
-	    rosplan_tiago_hazard_detection::GoGoal goal;
+	    rosplan_tiago_scenarios_msgs::GoGoal goal;
 
 	    // Fill in goal here
 	    goal.pose = srv.response.pose;

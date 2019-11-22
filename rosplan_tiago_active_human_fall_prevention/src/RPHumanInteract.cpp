@@ -26,7 +26,7 @@ namespace KCL_rosplan {
         }
 
         action_client.waitForServer();
-        rosplan_tiago_active_human_fall_prevention::HumanInteractGoal goal;
+	    rosplan_tiago_scenarios_msgs::HumanInteractGoal goal;
 
         // Fill in goal here
         goal.human = human_name;

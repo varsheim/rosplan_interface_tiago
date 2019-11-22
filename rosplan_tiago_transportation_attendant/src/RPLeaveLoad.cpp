@@ -5,7 +5,7 @@ namespace KCL_rosplan {
     /* constructor */
     RPLeaveLoad::RPLeaveLoad(ros::NodeHandle &nh) {
         // perform setup
-	    service_client_human = nh.serviceClient<rosplan_tiago_params::GetHuman>("/people_service");
+	    service_client_human = nh.serviceClient<rosplan_tiago_core_msgs::GetHuman>("/people_service");
         node_name = ros::this_node::getName();
         node_name_pretty = '(' + node_name + ')';
     }
@@ -28,7 +28,7 @@ namespace KCL_rosplan {
 
         // Get the actual values by calling the service
         // Fill the srv message first
-        rosplan_tiago_params::GetHuman srv_human;
+        rosplan_tiago_core_msgs::GetHuman srv_human;
         srv_human.request.human_name = current_human_name;
 
         if (service_client_human.call(srv_human)) {
@@ -40,7 +40,7 @@ namespace KCL_rosplan {
         }
 
         action_client.waitForServer();
-        rosplan_tiago_transportation_attendant::LeaveLoadGoal goal;
+        rosplan_tiago_scenarios_msgs::LeaveLoadGoal goal;
 
         // Fill in goal here
         goal.human = srv_human.response.human;

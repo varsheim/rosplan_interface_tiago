@@ -4,9 +4,9 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_tiago_wandering/GreetAction.h>
+#include <rosplan_tiago_scenarios_msgs/GreetAction.h>
 #include <geometry_msgs/Pose.h>
-#include <rosplan_tiago_params/GetLocation.h>
+#include <rosplan_tiago_core_msgs/GetLocation.h>
 
 #ifndef ROSPLAN_TIAGO_WANDERING_RPGREET_H
 #define ROSPLAN_TIAGO_WANDERING_RPGREET_H
@@ -17,7 +17,7 @@
 
 #define ACTION_ADDITION_TIME_S 2
 
-typedef actionlib::SimpleActionClient<rosplan_tiago_wandering::GreetAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_tiago_scenarios_msgs::GreetAction> Client;
 
 namespace KCL_rosplan {
 

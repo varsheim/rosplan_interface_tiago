@@ -6,7 +6,7 @@ import actionlib
 import dynamic_reconfigure.client
 
 from geometry_msgs.msg import Pose
-from rosplan_tiago_hazard_detection.msg import GoAction, GoActionGoal, GoActionFeedback, GoActionResult
+from rosplan_tiago_scenarios_msgs.msg import GoAction, GoActionGoal, GoActionFeedback, GoActionResult
 from actionlib_msgs.msg import GoalStatus
 from pal_common_msgs.msg import *
 from move_base_msgs.msg import *

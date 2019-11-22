@@ -6,7 +6,7 @@ namespace KCL_rosplan {
 	/* constructor */
 	RPGetItem::RPGetItem(ros::NodeHandle &nh) {
 //		// Create service client for getting location params
-//		service_client = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
+//		service_client = nh.serviceClient<rosplan_tiago_core_msgs::GetLocation>("/location_name_service");
 	}
 
 	/* action dispatch callback */
@@ -22,7 +22,7 @@ namespace KCL_rosplan {
 			}
 		}
 
-//		rosplan_tiago_params::GetLocation srv;
+//		rosplan_tiago_core_msgs::GetLocation srv;
 //		srv.request.location = current_destination;
 
 //		if (service_client.call(srv)) {
@@ -34,7 +34,7 @@ namespace KCL_rosplan {
 //		}
 
 		action_client.waitForServer();
-		rosplan_tiago_wandering::GetItemGoal goal;
+		rosplan_tiago_scenarios_msgs::GetItemGoal goal;
 
 		// Fill in goal here
 		goal.item = action_param_item;

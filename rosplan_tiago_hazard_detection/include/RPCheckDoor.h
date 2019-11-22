@@ -4,7 +4,7 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 #include <actionlib/client/simple_action_client.h>
-#include <rosplan_tiago_hazard_detection/CheckDoorAction.h>
+#include <rosplan_tiago_scenarios_msgs/CheckDoorAction.h>
 
 
 #ifndef ROSPLAN_INTERFACE_TIAGO_RPCHECKDOOR_H
@@ -12,7 +12,7 @@
 
 #define ACTION_ADDITION_TIME_S 2
 
-typedef actionlib::SimpleActionClient<rosplan_tiago_hazard_detection::CheckDoorAction> Client;
+typedef actionlib::SimpleActionClient<rosplan_tiago_scenarios_msgs::CheckDoorAction> Client;
 
 namespace KCL_rosplan {
 

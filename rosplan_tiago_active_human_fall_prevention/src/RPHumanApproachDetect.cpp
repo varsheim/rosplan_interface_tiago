@@ -21,7 +21,7 @@ namespace KCL_rosplan {
 
 
         action_client.waitForServer();
-        rosplan_tiago_active_human_fall_prevention::HumanApproachDetectGoal goal;
+	    rosplan_tiago_scenarios_msgs::HumanApproachDetectGoal goal;
 
         // Fill in goal here
         goal.dummy_goal = 500;

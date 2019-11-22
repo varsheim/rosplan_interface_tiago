@@ -12,7 +12,7 @@
   <buildtool_depend>catkin</buildtool_depend>
   <depend>actionlib</depend>
   <depend>actionlib_msgs</depend>
-  <depend>genmsg</depend>
+  <depend>rosplan_tiago_core_msgs</depend>
   <depend>diagnostic_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>roscpp</depend>

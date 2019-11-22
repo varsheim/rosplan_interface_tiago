@@ -4,10 +4,10 @@ import rospy
 import smach
 import smach_ros
 
-from rosplan_tiago_hazard_detection.msg import CheckDishwasherAction
-from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionGoal
-from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionFeedback
-from rosplan_tiago_hazard_detection.msg import CheckDishwasherActionResult
+from rosplan_tiago_scenarios_msgs.msg import CheckDishwasherAction
+from rosplan_tiago_scenarios_msgs.msg import CheckDishwasherActionGoal
+from rosplan_tiago_scenarios_msgs.msg import CheckDishwasherActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import CheckDishwasherActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 
 

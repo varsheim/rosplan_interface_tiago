@@ -5,10 +5,10 @@ import actionlib
 import smach
 import smach_ros
 
-from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractAction
-from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionGoal
-from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionFeedback
-from rosplan_tiago_active_human_fall_prevention.msg import HumanInteractActionResult
+from rosplan_tiago_scenarios_msgs.msg import HumanInteractAction
+from rosplan_tiago_scenarios_msgs.msg import HumanInteractActionGoal
+from rosplan_tiago_scenarios_msgs.msg import HumanInteractActionFeedback
+from rosplan_tiago_scenarios_msgs.msg import HumanInteractActionResult
 from rosplan_tiago_common.tiago_torso_controller import TiagoSpeechController
 from rosplan_tiago_common.tiago_torso_controller import TiagoHeadController
 from pal_common_msgs.msg import *

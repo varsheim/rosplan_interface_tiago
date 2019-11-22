@@ -7,8 +7,8 @@ namespace KCL_rosplan {
 
     /* constructor */
     RPGoWithAttendance::RPGoWithAttendance(ros::NodeHandle &nh) {
-	    service_client_location = nh.serviceClient<rosplan_tiago_params::GetLocation>("/location_name_service");
-	    service_client_human = nh.serviceClient<rosplan_tiago_params::GetHuman>("/people_service");
+	    service_client_location = nh.serviceClient<rosplan_tiago_core_msgs::GetLocation>("/location_name_service");
+	    service_client_human = nh.serviceClient<rosplan_tiago_core_msgs::GetHuman>("/people_service");
         node_name = ros::this_node::getName();
         node_name_pretty = '(' + node_name + ')';
     }
@@ -34,8 +34,8 @@ namespace KCL_rosplan {
 
 	    // Get the actual values by calling the service
 	    // Fill the srv message first
-	    rosplan_tiago_params::GetLocation srv_location;
-	    rosplan_tiago_params::GetHuman srv_human;
+	    rosplan_tiago_core_msgs::GetLocation srv_location;
+	    rosplan_tiago_core_msgs::GetHuman srv_human;
 
 	    srv_location.request.location = current_destination;
 	    srv_human.request.human_name = current_human_name;
@@ -57,7 +57,7 @@ namespace KCL_rosplan {
 	    }
 
         action_client.waitForServer();
-        rosplan_tiago_transportation_attendant::GoWithAttendanceGoal goal;
+        rosplan_tiago_scenarios_msgs::GoWithAttendanceGoal goal;
 
         // Fill in goal here
         goal.pose = srv_location.response.pose;

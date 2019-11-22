@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   rosplan_knowledge_msgs
   move_base_msgs
   play_motion_msgs
+  rosplan_tiago_core_msgs
   rospy
   tf
   message_generation
@@ -18,15 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_python_setup()
 
-add_message_files(
-        FILES
-        ROSPlanService.msg
-)
-
-generate_messages(
-        DEPENDENCIES
-        std_msgs
-)
 
 catkin_package(
     CATKIN_DEPENDS
@@ -34,7 +26,6 @@ catkin_package(
 )
 
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
 )
 

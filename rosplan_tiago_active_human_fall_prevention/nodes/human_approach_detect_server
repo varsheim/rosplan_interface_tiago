@@ -5,7 +5,7 @@ import smach
 import smach_ros
 from collections import OrderedDict
 
-from rosplan_tiago_active_human_fall_prevention.msg import HumanApproachDetectAction, HumanApproachDetectActionFeedback, HumanApproachDetectActionResult
+from rosplan_tiago_scenarios_msgs.msg import HumanApproachDetectAction, HumanApproachDetectActionFeedback, HumanApproachDetectActionResult
 from rosplan_tiago_common.tiago_kb import TiagoKBUpdate
 from rosplan_tiago_common.rosplan_control import ROSPlanSysControlClient
 from std_msgs.msg import Empty
