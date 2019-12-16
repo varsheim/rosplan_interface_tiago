@@ -66,7 +66,8 @@
                (at end (not (not_empty_robot)))
                (at end (empty_robot))
                (at end (not (item_on_robot ?item)))
-               (at end (load_left ?item ?human ?destination)))
+               (at end (load_left ?item ?human ?destination))
+               (at end (linked_to_location ?item ?destination)))
 )
 
 )

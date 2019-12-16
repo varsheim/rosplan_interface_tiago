@@ -2,10 +2,10 @@
 (:domain transportationattendant)
 (:objects
     rico - robot
-    luke john - human
-    glass sandwich - item
-    luke-location john-location wp0 wp1 - human-location
-    glass-location sandwich-location spaghetti-location luke-greet-location - item-location
+    luke john mark - human
+    tea coffee sandwich plate - item
+    luke-location john-location mark-location wp0 wp1 wp2 wp3 wp4 wp5 - human-location
+    glass-location sandwich-location spaghetti-location luke-greet-location kitchen - item-location
     initial - robot-location
 )
 (:init
@@ -16,8 +16,8 @@
 
 
     (at rico initial)
-    (at john wp1)
-    (at luke luke-greet-location)
+    (at john john-location)
+    (at luke luke-location)
 
 
     (linked_to_location glass glass-location)
@@ -26,6 +26,6 @@
 
 )
 (:goal (and
-    (load_left sandwich john wp1)
+    (load_left sandwich john john-location)
 ))
 )
